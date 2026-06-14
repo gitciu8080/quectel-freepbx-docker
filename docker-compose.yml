@@ -10,7 +10,7 @@ services:
   db:
     image: mariadb:10.6.8
     container_name: izpbx-db
-    ## WARNING: if you upgrade image tag enter the container and run mysql_upgrade:
+    ## 警告：如果升级镜像标签，需要进入容器执行 mysql_upgrade：
     ## source .env ; docker exec -it izpbx-db mysql_upgrade -u root -p$MYSQL_ROOT_PASSWORD
     command: --sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION
     restart: unless-stopped
@@ -27,12 +27,12 @@ services:
     volumes:
       #- /etc/localtime:/etc/localtime:ro
       - ./data/db:/var/lib/mysql
-      ## NOTE: to avoid nat management use: 'network_mode: host'
+      ## 注意：要避免 NAT 管理请使用：'network_mode: host'
       #network_mode: host
-      ## WARNING: if 'network_mode: host' is disabled, comment out the following lines
+      ## 警告：如果禁用了 'network_mode: host'，请注释掉以下行
     networks:
       - databases
-    ## WARNING: if commented out, the database will be exposed outside the container
+    ## 警告：如果被注释，数据库将暴露在容器外部
     ports:
       - ${APP_PORT_MYSQL}:3306
 
@@ -48,13 +48,13 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ./data:/data
-    ## fail2ban need privileged mode to manage iptables
+    ## fail2ban 需要特权模式来管理 iptables
     privileged: true
     ulimits:
       nofile:
         soft: 8192
         hard: 32768
-    ## NOTE: to avoid SIP-RTP NAT issues use: 'network_mode: host'
+    ## 注意：要避免 SIP-RTP NAT 问题请使用：'network_mode: host'
     #    network_mode: host
     networks:
       - freepbx

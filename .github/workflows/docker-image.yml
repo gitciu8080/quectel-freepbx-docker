@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Docker 镜像 CI
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     steps:    
     - uses: actions/checkout@v3
     
-    - name: Build and push Docker image
+    - name: 构建并推送 Docker 镜像
       run: |
         cd izpbx-asterisk
         docker login -u wiseowls -p ${{ secrets.DOCKER_HUB_SECRET }}

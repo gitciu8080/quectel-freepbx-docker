@@ -1,5 +1,5 @@
 kind: pipeline
-name: izpbx-release
+name: izpbx-发布
 
 environment:
   APP_VER: "${DRONE_TAG}"

@@ -1,5 +1,5 @@
 #!/bin/sh
-# script to renew let's encrypt certificates using freepbx fwconsole command
+# 使用 FreePBX fwconsole 命令续期 Let's Encrypt 证书的脚本
 
 if [[ "${HTTPD_HTTPS_ENABLED}" == "true" && "${LETSENCRYPT_ENABLED}" == "true" ]]; then
   # FIXME detect default certificate instead forcing to APP_FQDN variable

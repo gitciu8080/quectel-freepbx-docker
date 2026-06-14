@@ -4,21 +4,21 @@ FROM ${IMAGE_FROM}
 
 MAINTAINER Ugo Viti <ugo.viti@initzero.it>
 
-### default app args used during build step
+### 构建步骤中使用的默认应用参数
 #ARG APP_VER_MAJOR=
 #ARG APP_VER_MINOR=
 #ARG APP_VER_PATCH=
 
-## full app version
+## 完整应用版本
 #ARG APP_VER=${APP_VER_MAJOR}.${APP_VER_MINOR}.${APP_VER_PATCH}
 ARG APP_VER=dev
 ENV APP_VER=${APP_VER}
 
-### components app versions
+### 组件应用版本
 ## https://downloads.asterisk.org/pub/telephony/asterisk/releases
 ARG ASTERISK_VER=18.14.0
 
-## https://github.com/FreePBX/core/tags (only major version)
+## https://github.com/FreePBX/core/tags（仅主版本号）
 ARG FREEPBX_VER=16
 
 ## https://www.fop2.com/download.php
@@ -51,28 +51,28 @@ ARG ZABBIX_TEMPLATE_VER=main
 ## https://github.com/irontec/sngrep/releases
 ARG SNGREP_VER=1.6.0
 
-### define variables for later container usage
+### 定义后续容器使用的变量
 ENV ASTERISK_VER=${ASTERISK_VER}
 ENV FREEPBX_VER=${FREEPBX_VER}
 ENV FOP2_VER=${FOP2_VER}
 
-## app name
+## 应用名称
 ENV APP_NAME              "izpbx-asterisk"
 ENV APP_DESCRIPTION       "izPBX Cloud Native Telephony System"
 
-## set default timezone
+## 设置默认时区
 ENV TZ                    "UTC"
 
-## app users
+## 应用用户
 ENV APP_UID               1000
 ENV APP_GID               1000
 ENV APP_USR               "asterisk"
 ENV APP_GRP               "asterisk"
 
-## development debug mode (don't delete development and build dependencies on filesystem)
+## 开发调试模式（不删除文件系统中的开发和构建依赖）
 ARG APP_DEBUG=0
 
-## install packages
+## 安装软件包
 ENV APP_INSTALL_DEPS=' \
     rsync \
     net-tools \
@@ -190,30 +190,30 @@ ENV APP_INSTALL_DEPS=' \
     bc \
   '
   
-  # NOTE: postfix > 3.4.x is required for docker logging to stdout
+  # 注意：postfix > 3.4.x 用于将日志输出到 docker stdout
   
 RUN set -xe && \
-  ## import system information vars
+  ## 导入系统信息变量
   . /etc/os-release && \
   \
-  ## install epel repository
+  ## 安装 epel 仓库
   dnf -y install epel-release && \
   \
-  ## repo for phpMyAdmin
+  ## phpMyAdmin 的 remi 仓库
   rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-8.rpm && \
-  ## repo for zabbix agent
+  ## zabbix agent 的 zabbix 仓库
   rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/8/x86_64/zabbix-release-6.0-1.el8.noarch.rpm && \
-  ## repo for ffmpeg command
+  ## ffmpeg 命令的 rpmfusion 仓库
   rpm -Uhv https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
   rpm -Uhv https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm && \
-  ## repo for lame command
+  ## lame 命令的仓库
   rpm -Uhv http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-5.el8.noarch.rpm && \
-  ## fix wrong option
+  ## 修复错误选项
   sed '/^failovermethod/d' -i /etc/yum.repos.d/okay.repo && \
   \
-  ## install dnf plugins
+  ## 安装 dnf 插件
   dnf -y install dnf-plugins-core && \
-  ## enable extra repository
+  ## 启用额外仓库
   dnf config-manager --set-enabled \
     powertools \
     remi \
@@ -221,46 +221,46 @@ RUN set -xe && \
     rpmfusion-nonfree-updates \
     okay \
   && \
-  ## enable module php 7.4 needed for FreePBX 16
+  ## 启用 FreePBX 16 所需的 PHP 7.4 模块
   if [[ "${FREEPBX_VER}" = "16" ]]; then \
-  : "---------- Enable PHP 7.4 ----------" && \
+  : "---------- 启用 PHP 7.4 ----------" && \
   dnf module reset php -y && \
   dnf module enable php:7.4 -y \
   ;fi && \
   \
-  ## upgrade the system
+  ## 升级系统
   dnf upgrade -y && \
-  ## install mandatory packages
+  ## 安装必需软件包
   dnf install -y \
   $APP_INSTALL_DEPS \
   && \
   dnf mark install $APP_INSTALL_DEPS && \
   \
   if [[ ${APP_DEBUG} -eq 0 ]]; then \
-  : "---------- Clean temporary files ----------" && \
+  : "---------- 清理临时文件 ----------" && \
   dnf clean all && \
   rm -rf /var/cache/{dnf,yum} ;fi && \
-  : "---------- ALL install finished ----------" 
+  : "---------- 所有安装完成 ----------" 
 
-### prep users
+### 准备用户
 RUN set -xe && \
   groupadd -g ${APP_GID} ${APP_GRP} && \
   useradd -u ${APP_UID} -c "${APP_DESCRIPTION} User" -g ${APP_GRP} -s /sbin/nologin ${APP_USR} && \
-  ## add asterisk user to wheel and apache group
+  ## 将 asterisk 用户添加到 wheel 和 apache 组
   usermod -aG wheel,apache,dialout,games,lock ${APP_USR} && \
-  ## fix phpMyAdmin apache group permissions
+  ## 修复 phpMyAdmin apache 组权限
   chmod g+w /var/lib/phpMyAdmin/temp
 
-### build stage
+### 构建阶段
 
-## copy external sources files
+## 复制外部源文件
 #ADD build/ /usr/src/
 
-## build asterisk
+## 构建 asterisk
 RUN set -xe && \
   . /etc/os-release && \
   \
-  : "---------- START installing build packages ----------" && \
+  : "---------- 开始安装构建依赖包 ----------" && \
   ASTERISK_BUILD_DEPS=' \
     dmidecode \
     autoconf \
@@ -329,9 +329,9 @@ RUN set -xe && \
   \
   dnf -y install $ASTERISK_BUILD_DEPS && \
   \
-  : "---------- END installing build packages ----------" && \
+  : "---------- 构建依赖包安装完成 ----------" && \
   \
-  : "---------- START build spandsp ----------" && \
+  : "---------- 开始构建 spandsp ----------" && \
   cd /usr/src && \
   mkdir spandsp && \
   curl -fSL --connect-timeout 30 http://sources.buildroot.net/spandsp/spandsp-${SPANDSP_VER}.tar.gz | tar xz --strip 1 -C spandsp && \
@@ -340,9 +340,9 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build iksemel ----------" && \
+  : "---------- 开始构建 iksemel ----------" && \
   cd /usr/src && \
   mkdir iksemel && \
   curl -fSL --connect-timeout 30 https://github.com/holme-r/iksemel/archive/${IKSEMEL_VER}.tar.gz | tar xz --strip 1 -C iksemel && \
@@ -351,28 +351,28 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build ASTERISK ----------" && \
-  ## @20210408 unreachable asterisk url
+  : "---------- 开始构建 ASTERISK ----------" && \
+  ## @20210408 无法访问的 asterisk URL
   ## http://downloads.asterisk.org/pub/telephony/asterisk/releases/asterisk-${ASTERISK_VER}.tar.gz
-  ## @20210408 unreachable asterisk url - disable get_mp3_source.sh because need internet connection
+  ## @20210408 无法访问的 asterisk URL - 因需要网络连接禁用 get_mp3_source.sh
   #./contrib/scripts/get_mp3_source.sh
-  ## @20210414 reneabled get_mp3_source.sh
+  ## @20210414 重新启用 get_mp3_source.sh
   #tar zxvf /usr/src/asterisk-mp3.tar.gz -C addons
   cd /usr/src && \
   mkdir asterisk && \
   curl -fSL --connect-timeout 30 https://github.com/asterisk/asterisk/archive/refs/tags/${ASTERISK_VER}.tar.gz | tar xz --strip 1 -C asterisk && \
   cd asterisk && \
-  # step debug to avoid reinstall every time the development packages during debug sessions (COMMENT BEFORE FINAL BUILD TO AVOID ANOTHER CONTAINER LAYER)
+  # 调试步骤，避免在调试会话期间每次都重新安装开发包（最终构建前请注释，以避免产生额外的容器层）
   #RUN set -xe && \
    cd /usr/src/asterisk && \
   ./contrib/scripts/get_mp3_source.sh && \
   ./configure --prefix=/usr --libdir=/usr/lib64 --with-pjproject-bundled --with-jansson-bundled --with-resample --with-ssl=ssl --with-srtp && \
   \
-  # finalize configuration
+  # 完成配置
   make menuselect/menuselect menuselect-tree menuselect.makeopts && \
-  # configure default options by category
+  # 按类别配置默认选项
   menuselect/menuselect \
     --enable-category MENUSELECT_ADDONS \
     --enable-category MENUSELECT_CHANNELS \
@@ -384,7 +384,7 @@ RUN set -xe && \
     --enable-category MENUSELECT_RES \
     --enable-category MENUSELECT_CEL \
   && \
-  # enable/disable default options by single resource
+  # 按单个资源启用/禁用默认选项
   menuselect/menuselect \
     --enable BETTER_BACKTRACES \
     --enable DONT_OPTIMIZE \
@@ -451,16 +451,16 @@ RUN set -xe && \
     --disable res_phoneprov \
     --disable res_pjsip_phoneprov_provider \
   && \
-  # build and install Asterisk PBX
+  # 构建并安装 Asterisk PBX
   make && \
   make install && \
   make install-headers && \
   make config && \
   make samples && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build bcg729 ----------" && \
+  : "---------- 开始构建 bcg729 ----------" && \
   cd /usr/src && \
   mkdir bcg729 && \
   curl -fSL --connect-timeout 30 https://github.com/BelledonneCommunications/bcg729/archive/${BCG729_VER}.tar.gz | tar xz --strip 1 -C bcg729 && \
@@ -469,10 +469,10 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
   if [[ ${ASTERISK_VER%%.*} -le 18 ]]; then \
-  : "---------- START build asterisk-g72x ----------" && \
+  : "---------- 开始构建 asterisk-g72x ----------" && \
   cd /usr/src && \
   mkdir asterisk-g72x && \
   curl -fSL --connect-timeout 30 https://bitbucket.org/arkadi/asterisk-g72x/get/${ASTERISK_G72X_VER}.tar.gz | tar xz --strip 1 -C asterisk-g72x && \
@@ -482,9 +482,9 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig ;fi && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build asterisk-chan-dongle ----------" && \
+  : "---------- 开始构建 asterisk-chan-dongle ----------" && \
   cd /usr/src && \
   mkdir asterisk-chan-dongle && \
   curl -fSL --connect-timeout 30 https://github.com/shalzz/asterisk-chan-dongle/archive/${ASTERISK_CHAN_DONGLE_VER}.tar.gz | tar xz --strip 1 -C asterisk-chan-dongle && \
@@ -494,9 +494,9 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build asterisk-chan-quectel ----------" && \
+  : "---------- 开始构建 asterisk-chan-quectel ----------" && \
   cd /usr/src && \
   mkdir asterisk-chan-quectel && \
   curl -fSL --connect-timeout 30 https://github.com/IchthysMaranatha/asterisk-chan-quectel/archive/refs/tags/${ASTERISK_CHAN_QUECTEL_VER}.tar.gz | tar xz --strip 1 -C asterisk-chan-quectel && \
@@ -507,9 +507,9 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \  
+  : "---------- 构建完成 ----------" && \
   \
-  : "---------- START build sngrep ----------" && \
+  : "---------- 开始构建 sngrep ----------" && \
   cd /usr/src && \
   mkdir sngrep && \
   curl -fSL --connect-timeout 30 https://github.com/irontec/sngrep/archive/v${SNGREP_VER}.tar.gz | tar xz --strip 1 -C sngrep && \
@@ -520,35 +520,35 @@ RUN set -xe && \
   make && \
   make install && \
   ldconfig && \
-  : "---------- END build ----------" && \
+  : "---------- 构建完成 ----------" && \
   \
   if [[ ${APP_DEBUG} -eq 0 ]]; then \
-  : "---------- Clean temporary files ----------" && \
+  : "---------- 清理临时文件 ----------" && \
   dnf remove -y $ASTERISK_BUILD_DEPS && \
   dnf clean all && \
   rm -rf /var/cache/yum /tmp /usr/src && \
   mkdir -p /usr/src /tmp && chmod 1777 /tmp ;fi && \
-  : "---------- ALL builds finished ----------" 
+  : "---------- 所有构建完成 ----------" 
 
-### NOTE: asterisk build
-## to get the options passed above: menuselect/menuselect --list-options
+### 注意：asterisk 构建
+## 获取上述传递的选项：menuselect/menuselect --list-options
 
-## download freepbx and modules for offline install:
+## 下载 FreePBX 及模块用于离线安装：
 ## php -r 'echo json_encode(simplexml_load_file("http://mirror1.freepbx.org/modules-15.0.xml"));' | jq
 ## curl -fSL --connect-timeout 30 http://mirror.freepbx.org/modules/packages/freepbx/freepbx-${FREEPBX_VER}.0-latest.tgz | tar xz --strip 1 -C freepbx
 ## curl -fSL https://github.com/FreePBX/framework/archive/release/${FREEPBX_VER_FRAMEWORK}.tar.gz| tar xfz - --strip 1 -C freepbx
 
-## copy external sources files again
+## 再次复制外部源文件
 ADD build/ /usr/src/
 
-## deploy freepbx
+## 部署 FreePBX
 RUN set -xe && \
   \
   cd /usr/src && \
   mkdir freepbx && \
   curl -fSL --connect-timeout 30 http://mirror.freepbx.org/modules/packages/freepbx/freepbx-${FREEPBX_VER}.0-latest.tgz | tar xz --strip 1 -C freepbx && \
   cd freepbx && \
-  ## download modules-*.xml file if not exist in local build dir
+  ## 如果本地构建目录中不存在则下载 modules-*.xml 文件
   if [[ -e "/usr/src/modules-${FREEPBX_VER}.0.xml" ]]; then cp "/usr/src/modules-${FREEPBX_VER}.0.xml" "/usr/src/freepbx/modules-${FREEPBX_VER}.0.xml"; else \
     curl -fSL --connect-timeout 30 http://mirror1.freepbx.org/modules-${FREEPBX_VER}.0.xml -o modules-${FREEPBX_VER}.0.xml \
   ;fi && \
@@ -589,7 +589,7 @@ RUN set -xe && \
       weakpasswords \
       pm2 \
       ; do \
-  echo "---------- PreDownloading module for offline install: $MODULE ----------" && \
+  echo "---------- 预下载模块用于离线安装：$MODULE ----------" && \
   mkdir -p amp_conf/htdocs/admin/modules/$MODULE && \
   MODULE_VER=$(php -r "echo json_encode(simplexml_load_file('modules-${FREEPBX_VER}.0.xml'));" | jq -r ".module[] | select(.rawname == \"${MODULE}\") | {version}".version) && \
   curl -sfSL --connect-timeout 30 http://mirror.freepbx.org/modules/packages/$MODULE/$MODULE-${MODULE_VER}.tgz | tar xz --strip 1 -C amp_conf/htdocs/admin/modules/$MODULE/ && \
@@ -601,28 +601,28 @@ RUN set -xe && \
   su - asterisk -s /bin/bash -c "gpg --import /usr/src/freepbx/amp_conf/htdocs/admin/libraries/BMO/86CE877469D2EAD9.key" && \
   su - asterisk -s /bin/bash -c "gpg --import /usr/src/freepbx/amp_conf/htdocs/admin/libraries/BMO/9F9169F4B33B4659.key"
 
-## install other components
+## 安装其他组件
 RUN set -xe && \
-  : "---------- START install izsynth by InitZero ----------" && \
+  : "---------- 开始安装 InitZero izsynth ----------" && \
   cd /usr/src && \
   mkdir -p izsynth && \
   curl -fSL --connect-timeout 30 https://github.com/ugoviti/izsynth/archive/${IZSYNTH_VER}.tar.gz | tar xz --strip 1 -C izsynth && \
   cp -a izsynth/izsynth /usr/local/bin/izsynth && \
   chmod 755 /usr/local/bin/izsynth && \
-  : "---------- END install ----------" && \
-  : "---------- START install Asterisk Zabbix Agents by InitZero ----------" && \
+  : "---------- 安装完成 ----------" && \
+  : "---------- 开始安装 InitZero Asterisk Zabbix 代理 ----------" && \
   cd /etc/zabbix/zabbix_agentd.d && \
   curl -fSL --connect-timeout 30 https://github.com/ugoviti/zabbix-templates/archive/${ZABBIX_TEMPLATE_VER}.tar.gz | tar xz --strip 3 zabbix-templates-${ZABBIX_TEMPLATE_VER}/asterisk/zabbix_agentd.d && \
-  : "---------- END install ----------" && \
-  ## enable module php 7.4 needed for FreePBX 16
+  : "---------- 安装完成 ----------" && \
+  ## 启用 FreePBX 16 所需的 PHP 7.4 模块
   if [[ "${FREEPBX_VER}" = "16" ]]; then \
-  : "---------- START install PHP IonCube Loader ----------" && \
+  : "---------- 开始安装 PHP IonCube Loader ----------" && \
   curl -fSL --connect-timeout 30 https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz | tar xz --strip 1 -C /usr/lib64/php/modules/ ioncube/ioncube_loader_lin_7.4.so && \
   echo "zend_extension=ioncube_loader_lin_7.4.so" >> /etc/php.ini && \
-  : "---------- END install ----------" \
+  : "---------- 安装完成 ----------" \
   ;fi
 
-## set pemissions and sudo
+## 设置权限和 sudo
 RUN set -xe && \
   chown -R ${APP_USR}:${APP_GRP} \
     /etc/asterisk \
@@ -633,17 +633,17 @@ RUN set -xe && \
     chmod 1777 /var/lock && \
     echo "KERNEL==\"ttyUSB[0-9]*\", OWNER=\"asterisk\"" > /etc/udev/rules.d/60-extra-acl.rules
 
-### fixes and workarounds
+### 修复与临时方案
 
-## copy external sources files
+## 复制外部源文件
 ADD patch/ /usr/src/
 
-## FIXME: fix for FreePBX 16 upgrade error (20211121: MUST be removed in a future release for better security)
-## other problem when upgrading to FreePBX 16: https://issues.freepbx.org/browse/FREEPBX-22842
-## references: https://wiki.freepbx.org/display/FOP/Non+Distro+-+Upgrade+to+FreePBX+16
+## FIXME: 修复 FreePBX 16 升级错误（20211121：未来版本中为提升安全性必须移除）
+## FreePBX 16 升级时的其他问题：https://issues.freepbx.org/browse/FREEPBX-22842
+## 参考：https://wiki.freepbx.org/display/FOP/Non+Distro+-+Upgrade+to+FreePBX+16
 RUN sed 's/@SECLEVEL=2/@SECLEVEL=1/' -i /etc/crypto-policies/back-ends/opensslcnf.config
 
-### app ports
+### 应用端口
 ENV APP_PORT_HTTP         80
 ENV APP_PORT_HTTPS        443
 ENV APP_PORT_IAX          4569
@@ -661,7 +661,7 @@ ENV APP_PORT_NTP          123
 ENV APP_PORT_FOP2         4445
 ENV APP_PORT_ZABBIX       10050
 
-### exposed ports
+### 暴露端口
 EXPOSE \
   ${APP_PORT_HTTP}/tcp \
   ${APP_PORT_HTTPS}/tcp \
@@ -684,23 +684,23 @@ EXPOSE \
   ${APP_PORT_FOP2}/tcp \
   ${APP_PORT_ZABBIX}/tcp
 
-### define volumes
+### 定义卷
 #VOLUME [ "/var/spool/cron", "/var/www", "/etc/asterisk", "/var/lib/asterisk/sounds/custom" ]
 
-## CI args
+## CI 参数
 ARG APP_VER_BUILD
 ARG APP_BUILD_COMMIT
 ARG APP_BUILD_DATE
 
-## CI envs
+## CI 环境变量
 ENV APP_FQDN=""
 ENV APP_VER_BUILD="${APP_VER_BUILD}"
 ENV APP_BUILD_COMMIT="${APP_BUILD_COMMIT}"
 ENV APP_BUILD_DATE="${APP_BUILD_DATE}"
 
-## add files to container
+## 添加文件到容器
 ADD rootfs Dockerfile README.md /
 
-## start the container process
+## 启动容器进程
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]

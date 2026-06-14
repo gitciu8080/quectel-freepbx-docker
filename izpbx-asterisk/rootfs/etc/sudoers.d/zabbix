@@ -1,4 +1,4 @@
-## allow zabbix to restart sevices
+## 允许 zabbix 用户重启服务
 User_Alias ZABBIX = zabbix
 Cmnd_Alias ZABBIX_COMMANDS = /usr/sbin/asterisk
 Defaults:ZABBIX !requiretty

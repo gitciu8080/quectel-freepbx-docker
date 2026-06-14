@@ -17,7 +17,7 @@ appHooks() {
 
   [ "${APP_BUILD_DATE}" != "unknown" ] && APP_BUILD_DATE=$(date -d @${APP_BUILD_DATE} +"%Y-%m-%d")
   
-  echo "=> Starting container $APP_DESCRIPTION -> $APP_NAME:$APP_VER (build:${APP_VER_BUILD} commit:${APP_BUILD_COMMIT} date:${APP_BUILD_DATE})"
+  echo "=> 启动容器 $APP_DESCRIPTION -> $APP_NAME:$APP_VER (构建:${APP_VER_BUILD} 提交:${APP_BUILD_COMMIT} 日期:${APP_BUILD_DATE})"
   echo "==============================================================================="
 
   # verify if exist custom directory overrides
@@ -29,10 +29,10 @@ appHooks() {
   [ ! -z "${APP_WORK}" ] && relink_dir "${APP_WORK_DEFAULT}" "${APP_WORK}"
   [ ! -z "${APP_SHARED}" ] && relink_dir "${APP_SHARED_DEFAULT}" "${APP_SHARED}"
   else
-    echo "=> Skipping APP directories relinking: APP_RELINK=$APP_RELINK"
+    echo "=> 跳过 APP 目录重新链接：APP_RELINK=$APP_RELINK"
   fi
   
-  echo "=> Executing $APP_NAME hooks:"
+  echo "=> 执行 $APP_NAME 钩子："
   [ -e "/entrypoint-hooks.sh" ] && . /entrypoint-hooks.sh
   echo "-------------------------------------------------------------------------------"
 }
@@ -46,15 +46,15 @@ relink_dir() {
   [ ! -e "$dir_default" ] && mkdir -p "$dir_default"
   [ ! -e "$(dirname "$dir_custom")" ] && mkdir -p "$(dirname "$dir_custom")"
 
-  echo "$APP_DESCRIPTION directory container override detected! default: $dir_default custom: $dir_custom"
+  echo "$APP_DESCRIPTION 目录容器覆盖检测到！默认：$dir_default 自定义：$dir_custom"
   if [ ! -e "$dir_custom" ]; then
-    echo -e -n "=> moving the $dir_default directory to $dir_custom ..."
+    echo -e -n "=> 正在将 $dir_default 目录移动到 $dir_custom ..."
     mv "$dir_default" "$dir_custom"
   else
-    echo -e -n "=> directory $dir_custom already exist..."
+    echo -e -n "=> 目录 $dir_custom 已存在..."
     mv "$dir_default" "$dir_default".dist
   fi
-  echo "linking $dir_custom into $dir_default"
+  echo "正在将 $dir_custom 链接到 $dir_default"
   ln -s "$dir_custom" "$dir_default"
 }
 
@@ -83,7 +83,7 @@ fi
 # use tini init manager if defined in Dockerfile
 [ "$ENTRYPOINT_TINI" = "true" ] && CMD="tini -g -- $CMD"
 
-echo "=> Executing $APP_NAME entrypoint command: $CMD"
+echo "=> 执行 $APP_NAME 入口点命令：$CMD"
 echo "==============================================================================="
 # set default system umask before starting the container
 [ ! -z "$UMASK" ] && umask $UMASK

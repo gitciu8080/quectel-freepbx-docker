@@ -1,9 +1,9 @@
 #!/bin/bash
-# written by Ugo Viti <ugo.viti@initzero.it>
-# version: 20210313
+# 作者: Ugo Viti <ugo.viti@initzero.it>
+# 版本: 20210313
 #set -ex
 
-## app specific variables
+## 应用特定变量
 : ${APP_DESCRIPTION:="izPBX Cloud Telephony System"}
 : ${APP_CHART:=""}
 : ${APP_RELEASE:=""}
@@ -12,10 +12,10 @@
 : ${ASTERISK_VER:=""}
 : ${FREEPBX_VER:=""}
 
-# override default data directory used by container apps (used by stateful apps)
+# 覆盖容器应用使用的默认数据目录（供有状态应用使用）
 : ${APP_DATA:=""}
 
-# timezone management workaround
+# 时区管理临时解决方案
 : ${TZ:="UTC"}
 [ -e "/etc/localtime" ] && rm -f /etc/localtime
 [ -e "/etc/timezone" ] && rm -f /etc/timezone
@@ -23,7 +23,7 @@ ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
 echo "$TZ" > /etc/timezone
 
 
-# default directory and config files paths arrays used for persistent data
+# 用于持久化数据的默认目录和配置文件路径数组
 declare -A appDataDirs=(
   [CRONDIR]=/var/spool/cron
   [ASTHOME]=/home/asterisk
@@ -42,13 +42,13 @@ declare -A appDataDirs=(
   [TFTPDIR]=/var/lib/tftpboot
 )
 
-# configuration files
+# 配置文件
 declare -A appFilesConf=(
   [FPBXCFGFILE]=/etc/freepbx.conf
   [AMPCFGFILE]=/etc/amportal.conf
 )
 
-# cache directories
+# 缓存目录
 declare -A appCacheDirs=(
   [ASTRUNDIR]=/var/run/asterisk
   [PHPOPCACHEDIR]=/var/lib/php/opcache
@@ -56,7 +56,7 @@ declare -A appCacheDirs=(
   [PHPWSDLDIR]=/var/lib/php/wsdlcache
 )
 
-# FreePBX directories
+# FreePBX 目录
 declare -A fpbxDirs=(
   [AMPWEBROOT]=/var/www/html
   [ASTETCDIR]=/etc/asterisk
@@ -68,25 +68,25 @@ declare -A fpbxDirs=(
   [AMPSBIN]=/var/lib/asterisk/sbin
   [AMPCGIBIN]=/var/www/cgi-bin
   [AMPPLAYBACK]=/var/lib/asterisk/playback
-  [CERTKEYLOC]=/etc/asterisk/keys               
+  [CERTKEYLOC]=/etc/asterisk/keys
 )
 
-# asterisk extra directories
+# Asterisk 额外目录
 declare -A fpbxDirsExtra=(
   [ASTMODDIR]=/usr/lib64/asterisk/modules
 )
 
-# FreePBX log files
+# FreePBX 日志文件
 declare -A fpbxFilesLog=(
   [FPBXDBUGFILE]=/var/log/asterisk/freepbx_debug.log
   [FPBXLOGFILE]=/var/log/asterisk/freepbx.log
   [FPBXSECLOGFILE]=/var/log/asterisk/freepbx_security.log
 )
 
-# FreePBX customizable settings
+# FreePBX 可自定义设置
 : ${FREEPBX_HTTPBINDPORT:="$APP_PORT_AMI"}
 
-# FreePBX customizable SIP settings
+# FreePBX 可自定义 SIP 设置
 declare -A fpbxSipSettings=(
   [rtpstart]=${APP_PORT_RTP_START}
   [rtpend]=${APP_PORT_RTP_END}
@@ -96,18 +96,18 @@ declare -A fpbxSipSettings=(
 )
 
 
-# 20200318 still can't be changed
+# 20200318 仍无法修改
 #declare -A freepbxIaxSettings=(
 #  [bindport]=${APP_PORT_IAX}
 #)
 
-## other variables
+## 其他变量
 
-# hostname configuration
-[ ! -z ${APP_FQDN} ] && hostname "${APP_FQDN}" && export HOSTNAME=${HOSTNAME} # set hostname to APP_FQDN if defined
-: ${SERVERNAME:=$HOSTNAME}      # (**$HOSTNAME**) default web server hostname
+# 主机名配置
+[ ! -z ${APP_FQDN} ] && hostname "${APP_FQDN}" && export HOSTNAME=${HOSTNAME} # 如果定义了 APP_FQDN，则将主机名设置为 APP_FQDN
+: ${SERVERNAME:=$HOSTNAME}      # （**$HOSTNAME**）默认 Web 服务器主机名
 
-# define PHONEBOOK_ADDRESS used in phonebook menu.xml.
+# 定义 phonebook menu.xml 中使用的 PHONEBOOK_ADDRESS。
 : ${PHONEBOOK_ADDRESS:=""}
 if [ -z "$PHONEBOOK_ADDRESS" ]; then
   [ "$HTTPD_HTTPS_ENABLED" = "true" ] && PHONEBOOK_PROTO=https || PHONEBOOK_PROTO=http
@@ -119,7 +119,7 @@ if [ -z "$PHONEBOOK_ADDRESS" ]; then
   fi
 fi
 
-# mysql configuration
+# MySQL 配置
 : ${MYSQL_SERVER:="db"}
 : ${MYSQL_DATABASE:="asterisk"}
 : ${MYSQL_DATABASE_CDR:="asteriskcdrdb"}
@@ -129,14 +129,14 @@ fi
 : ${MYSQL_ROOT_PASSWORD:=""}
 : ${APP_PORT_MYSQL:="3306"}
 
-# fop2 (automaticcally obtained quering freepbx settings)
+# fop2（通过查询 FreePBX 设置自动获取）
 #: ${FOP2_AMI_HOST:="localhost"}
 #: ${FOP2_AMI_PORT:="5038"}
 #: ${FOP2_AMI_USERNAME:="admin"}
 #: ${FOP2_AMI_PASSWORD:="amp111"}
 : ${FOP2_AUTOUPGRADE:="false"}
 
-# apache httpd configuration
+# Apache httpd 配置
 : ${HTTPD_HTTPS_ENABLED:="false"}
 : ${HTTPD_REDIRECT_HTTP_TO_HTTPS:="false"}
 : ${HTTPD_ALLOW_FROM:=""}
@@ -145,12 +145,12 @@ fi
 : ${HTTPD_HTTPS_KEY_FILE:="${fpbxDirs[CERTKEYLOC]}/default.key"}
 #: ${HTTPD_HTTPS_CHAIN_FILE:="${fpbxDirs[CERTKEYLOC]}/default.chain.crt"}
 
-# phpMyAdmin configuration
+# phpMyAdmin 配置
 : ${PMA_CONFIG:="/etc/phpMyAdmin/config.inc.php"}
 : ${PMA_ALIAS:="/admin/pma"}
 : ${PMA_ALLOW_FROM:="127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16"}
 
-## zabbix configuration
+## Zabbix 配置
 : ${ZABBIX_USR:="zabbix"}
 : ${ZABBIX_GRP:="zabbix"}
 : ${ZABBIX_SERVER:="127.0.0.1"}
@@ -158,7 +158,7 @@ fi
 : ${ZABBIX_HOSTNAME:="$HOSTNAME"}
 : ${ZABBIX_HOSTMETADATA:="izPBX"}
 
-## default supervisord services status
+## 默认 supervisord 服务状态
 #: ${SYSLOG_ENABLED:="true"}
 #: ${POSTFIX_ENABLED:="true"}
 : ${CRON_ENABLED:="true"}
@@ -176,11 +176,11 @@ fi
 : ${PMA_ENABLED:="false"}
 : ${PHONEBOOK_ENABLED:="true"}
 
-## daemons configs
-# legacy config: if ROOT_MAILTO is defined then set SMTP_MAIL_TO=$ROOT_MAILTO
+## 守护进程配置
+# 兼容旧配置：如果定义了 ROOT_MAILTO，则设置 SMTP_MAIL_TO=$ROOT_MAILTO
 : ${SMTP_MAIL_TO:="$ROOT_MAILTO"}
-## default cron mail adrdess
-: ${ROOT_MAILTO:="$SMTP_MAIL_TO"} # default root mail address
+## 默认 cron 邮件地址
+: ${ROOT_MAILTO:="$SMTP_MAIL_TO"} # 默认 root 邮件地址
 
 # postfix
 : ${SMTP_RELAYHOST:=""}
@@ -191,7 +191,7 @@ fi
 : ${SMTP_MESSAGE_SIZE_LIMIT:="0"}
 : ${SMTP_MAIL_FROM:="izpbx@localhost.localdomain"}
 : ${SMTP_MAIL_TO:="root@localhost.localdomain"}
-# smarthost config
+# smarthost 配置
 : ${RELAYHOST:="$SMTP_RELAYHOST"}
 : ${RELAYHOST_USERNAME:="$SMTP_RELAYHOST_USERNAME"}
 : ${RELAYHOST_PASSWORD:="$SMTP_RELAYHOST_PASSWORD"}
@@ -202,13 +202,13 @@ fi
 : ${FAIL2BAN_DEFAULT_SENDER:="$SMTP_MAIL_FROM"}
 : ${FAIL2BAN_DEFAULT_DESTEMAIL:="$SMTP_MAIL_TO"}
 
-# operating system specific variables
-## detect current operating system
+# 操作系统特定变量
+## 检测当前操作系统
 : ${OS_RELEASE:="$(cat /etc/os-release | grep ^"ID=" | sed 's/"//g' | awk -F"=" '{print $2}')"}
 
-# operating system specific paths
+# 操作系统特定路径
 if   [ "$OS_RELEASE" = "debian" ]; then
-# debian paths
+# Debian 路径
 : ${SUPERVISOR_DIR:="/etc/supervisor/conf.d/"}
 : ${PMA_DIR:="/var/www/html/admin/pma"}
 : ${PMA_CONF:="$PMA_DIR/config.inc.php"}
@@ -220,23 +220,23 @@ if   [ "$OS_RELEASE" = "debian" ]; then
 : ${ZABBIX_CONF:="/etc/zabbix/zabbix_agentd.conf"}
 : ${ZABBIX_CONF_LOCAL:="/etc/zabbix/zabbix_agentd.conf.d/local.conf"}
 elif [ "$OS_RELEASE" = "alpine" ]; then
-# alpine paths
+# Alpine 路径
 : ${SUPERVISOR_DIR:="/etc/supervisor.d"}
 : ${PMA_CONF:="/etc/phpmyadmin/config.inc.php"}
 : ${PMA_CONF_APACHE:="/etc/apache2/conf.d/phpmyadmin.conf"}
 : ${PHP_CONF:="/etc/php/php.ini"}
 : ${ZABBIX_CONF_LOCAL:="/etc/zabbix/zabPHONEBOOK_ADDRESSbix_agentd.conf.d/local.conf"}
 else
-# failback to RHEL based distro
+# 回退到基于 RHEL 的发行版
 : ${SUPERVISOR_DIR:="/etc/supervisord.d"}
-: ${HTTPD_CONF_DIR:="/etc/httpd"} # apache config dir
+: ${HTTPD_CONF_DIR:="/etc/httpd"} # Apache 配置目录
 : ${PMA_CONF_APACHE:="/etc/httpd/conf.d/phpMyAdmin.conf"}
 : ${ZABBIX_CONF:="/etc/zabbix/zabbix_agentd.conf"}
 : ${ZABBIX_CONF_LOCAL:="/etc/zabbix/zabbix_agentd.d/local.conf"}
 fi
 
 
-## misc functions
+## 杂项函数
 check_version() { printf "%03d%03d%03d%03d" $(echo "$1" | tr '.' ' '); }
 
 print_path() {
@@ -255,7 +255,7 @@ print_ext() {
   echo ${@##*.}
 }
 
-# return true if specified directory is empty
+# 如果指定目录为空则返回 true
 dirEmpty() {
     [ -z "$(ls -A "$1/")" ]
 }
@@ -268,11 +268,11 @@ fixOwner() {
   file="$@"
   if [ -e "${file}" ]; then
       if [ "$(stat -c "%U %G" "${file}")" != "${usr} ${grp}" ];then
-          echo "---> fixing owner: '${file}'"
+          echo "---> 正在修复所有者: '${file}'"
           chown ${usr}:${grp} "${file}"
       fi
     else
-      echo "---> WARNING: file or directory doesn't exist: '${file}'"
+      echo "---> 警告: 文件或目录不存在: '${file}'"
   fi
 }
 
@@ -284,42 +284,42 @@ fixPermission() {
   file="$@"
   if [ -e "${file}" ]; then
       if [ "$(stat -c "%a" "${file}")" != "770" ];then
-          echo "---> fixing permission: '${file}'"
+          echo "---> 正在修复权限: '${file}'"
           chmod 0770 "${file}"
       fi
     else
-      echo "---> WARNING: file or directory doesn't exist: '${file}'"
+      echo "---> 警告: 文件或目录不存在: '${file}'"
   fi
 }
 
-# if required move default confgurations to custom directory
+# 如果需要，将默认配置移动到自定义目录
 symlinkDir() {
   local dirOriginal="$1"
   local dirCustom="$2"
 
-  echo "--> directory data override detected: original:[$dirOriginal] custom:[$dirCustom]"
+  echo "--> 检测到目录数据覆盖: 原始:[$dirOriginal] 自定义:[$dirCustom]"
 
-  # copy data files form original directory if destination is empty
+  # 如果目标目录为空，从原始目录复制数据文件
   if [ -e "$dirOriginal" ] && dirEmpty "$dirCustom"; then
-    echo "--> empty dir '$dirCustom' detected copying '$dirOriginal' contents to '$dirCustom'..."
+    echo "--> 检测到空目录 '$dirCustom'，正在将 '$dirOriginal' 内容复制到 '$dirCustom'..."
     rsync -a -q "$dirOriginal/" "$dirCustom/"
   fi
 
-  # make directory if not exist
+  # 如果目录不存在则创建
   if [ ! -e "$dirOriginal" ]; then
-      # make destination dir if not exist
-      echo "--> WARNING: original data directory doesn't exist... creating empty directory: '$dirOriginal'"
+      # 如果目标目录不存在则创建
+      echo "--> 警告: 原始数据目录不存在... 正在创建空目录: '$dirOriginal'"
       mkdir -p "$dirOriginal"
   fi
-  
-  # rename directory
+
+  # 重命名目录
   if [ -e "$dirOriginal" ]; then
-      echo -e "--> renaming '${dirOriginal}' to '${dirOriginal}.dist'"
+      echo -e "--> 正在将 '${dirOriginal}' 重命名为 '${dirOriginal}.dist'"
       mv "$dirOriginal" "$dirOriginal".dist
   fi
-  
-  # symlink directory
-  echo "--> symlinking '$dirCustom' to '$dirOriginal'"
+
+  # 符号链接目录
+  echo "--> 正在将 '$dirCustom' 符号链接到 '$dirOriginal'"
   ln -s "$dirCustom" "$dirOriginal"
 }
 
@@ -327,29 +327,29 @@ symlinkFile() {
   local fileOriginal="$1"
   local fileCustom="$2"
 
-  echo "--> file data override detected: original:[$fileOriginal] custom:[$fileCustom]"
+  echo "--> 检测到文件数据覆盖: 原始:[$fileOriginal] 自定义:[$fileCustom]"
 
   if [ -e "$fileOriginal" ]; then
-      # copy data files form original directory if destination is empty
+      # 如果目标文件为空，从原始目录复制数据文件
       if [ ! -e "$fileCustom" ]; then
-        echo "--> INFO: detected not existing file '$fileCustom'. copying '$fileOriginal' to '$fileCustom'..."
+        echo "--> 信息: 检测到文件 '$fileCustom' 不存在。正在将 '$fileOriginal' 复制到 '$fileCustom'..."
         rsync -a -q "$fileOriginal" "$fileCustom"
       fi
-      echo -e "--> renaming '${fileOriginal}' to '${fileOriginal}.dist'... "
+      echo -e "--> 正在将 '${fileOriginal}' 重命名为 '${fileOriginal}.dist'... "
       mv "$fileOriginal" "$fileOriginal".dist
     else
-      echo "--> WARNING: original data file doesn't exist... creating symlink from a not existing source: '$fileOriginal'"
+      echo "--> 警告: 原始数据文件不存在... 正在从不存在的源创建符号链接: '$fileOriginal'"
       #touch "$fileOriginal"
   fi
 
-  echo "--> symlinking '$fileCustom' to '$fileOriginal'"
-  # create parent dir if not exist
+  echo "--> 正在将 '$fileCustom' 符号链接到 '$fileOriginal'"
+  # 如果父目录不存在则创建
   [ ! -e "$(dirname "$fileCustom")" ] && mkdir -p "$(dirname "$fileCustom")"
   ln -s "$fileCustom" "$fileOriginal"
 
 }
 
-# enable/disable and configure services
+# 启用/禁用和配置服务
 chkService() {
   local SERVICE_VAR="$1"
   eval local SERVICE_ENABLED="\$$(echo $SERVICE_VAR)"
@@ -358,78 +358,78 @@ chkService() {
   [ -z "$SERVICE_DAEMON" ] && local SERVICE_DAEMON="$SERVICE"
   if [ "$SERVICE_ENABLED" = "true" ]; then
     autostart=true
-    echo "=> Enabling $SERVICE_DAEMON service... because $SERVICE_VAR=$SERVICE_ENABLED"
-    echo "--> configuring $SERVICE_DAEMON service..."
+    echo "=> 正在启用 $SERVICE_DAEMON 服务... 因为 $SERVICE_VAR=$SERVICE_ENABLED"
+    echo "--> 正在配置 $SERVICE_DAEMON 服务..."
     cfgService_$SERVICE
    else
     autostart=false
-    echo "=> Disabling $SERVICE_DAEMON service... because $SERVICE_VAR=$SERVICE_ENABLED"
+    echo "=> 正在禁用 $SERVICE_DAEMON 服务... 因为 $SERVICE_VAR=$SERVICE_ENABLED"
   fi
   sed "s/autostart=.*/autostart=$autostart/" -i ${SUPERVISOR_DIR}/$SERVICE_DAEMON.ini
 }
 
-## postfix service
+## postfix 服务
 cfgService_postfix() {
-# fix inet_protocols ipv6 problem
+# 修复 inet_protocols IPv6 问题
 postconf -e inet_protocols=ipv4
 
-# Set up host name
+# 设置主机名
 if [ ! -z "$HOSTNAME" ]; then
 	postconf -e myhostname="$HOSTNAME"
 else
 	postconf -# myhostname
 fi
 
-# Set up a relay host, if needed
+# 如果需要，设置中继主机
 if [ ! -z "$RELAYHOST" ]; then
-	echo -n "- Forwarding all emails to $RELAYHOST"
+	echo -n "- 正在将所有邮件转发到 $RELAYHOST"
 	postconf -e relayhost=$RELAYHOST
 
 	if [ -n "$RELAYHOST_USERNAME" ] && [ -n "$RELAYHOST_PASSWORD" ]; then
-		echo " using username $RELAYHOST_USERNAME."
+		echo " 使用用户名 $RELAYHOST_USERNAME。"
 		echo "$RELAYHOST $RELAYHOST_USERNAME:$RELAYHOST_PASSWORD" >> /etc/postfix/sasl_passwd
 		postmap hash:/etc/postfix/sasl_passwd
 		postconf -e "smtp_sasl_auth_enable=yes"
 		postconf -e "smtp_sasl_password_maps=hash:/etc/postfix/sasl_passwd"
 		postconf -e "smtp_sasl_security_options=noanonymous"
 	else
-		echo " without any authentication. Make sure your server is configured to accept emails coming from this IP."
+		echo " 不带任何身份验证。请确保您的服务器已配置为接受来自此 IP 的邮件。"
 	fi
 else
-	echo "---> postfix will try to deliver emails directly to the final server. make sure your DNS is setup properly!"
+	echo "---> postfix 将尝试直接将邮件投递到目标服务器。请确保您的 DNS 已正确设置！"
 	postconf -# relayhost
 	postconf -# smtp_sasl_auth_enable
 	postconf -# smtp_sasl_password_maps
 	postconf -# smtp_sasl_security_options
 fi
 
-# Set up my networks to list only networks in the local loopback range
+# 设置我的网络，仅列出本地回环范围内的网络
 #network_table=/etc/postfix/network_table
 #touch $network_table
 #echo "127.0.0.0/8    any_value" >  $network_table
 #echo "10.0.0.0/8     any_value" >> $network_table
 #echo "172.16.0.0/12  any_value" >> $network_table
 #echo "192.168.0.0/16 any_value" >> $network_table
-## Ignore IPv6 for now
+## 暂时忽略 IPv6
 ##echo "fd00::/8" >> $network_table
 #postmap $network_table
 #postconf -e mynetworks=hash:$network_table
 
 if [ ! -z "$SMTP_MYNETWORKS" ]; then
-  echo "---> enabling mynetworks: $SMTP_MYNETWORKS"
+  echo "---> 正在启用 mynetworks: $SMTP_MYNETWORKS"
   postconf -e mynetworks=$SMTP_MYNETWORKS
 else
   postconf -e "mynetworks=127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 fi
 
 if [ "$SMTP_STARTTLS" = "true" ]; then
-  echo "---> enabling TLS support as smtp client"
+  echo "---> 正在作为 SMTP 客户端启用 TLS 支持"
   postconf -e smtp_use_tls=yes
 fi
 
-# split with space
+# 按空格分割
 if [ ! -z "$ALLOWED_SENDER_DOMAINS" ]; then
-	echo -n "---> Setting up allowed SENDER domains: $ALLOWED_SENDER_DOMAINS"
+	echo -n "---> 正在设置允许的发件人域名: $ALLOWED_SENDER_DOMAINS"
 	allowed_senders=/etc/postfix/allowed_senders
 	rm -f $allowed_senders $allowed_senders.db > /dev/null
 	touch $allowed_senders
@@ -448,32 +448,32 @@ else
 	postconf -e "smtpd_recipient_restrictions=reject_non_fqdn_recipient,reject_unknown_recipient_domain,reject_unverified_recipient"
 fi
 
-# Use 587 (submission)
-echo "---> enabling submission protocol on port 587"
+# 使用 587 端口（提交）
+echo "---> 正在启用 587 端口的提交协议"
 sed -i -r -e 's/^#submission/submission/' /etc/postfix/master.cf
 
-# configure /etc/aliases
+# 配置 /etc/aliases
 [ ! -f /etc/aliases ] && echo "postmaster: root" > /etc/aliases
 
-if   ! grep ^"root:" /etc/aliases 2>&1 >/dev/null; then 
+if   ! grep ^"root:" /etc/aliases 2>&1 >/dev/null; then
   echo "root: ${SMTP_MAIL_TO}" >> /etc/aliases
   newaliases
-elif ! grep ^"root:.*${SMTP_MAIL_TO}" /etc/aliases 2>&1 >/dev/null; then 
+elif ! grep ^"root:.*${SMTP_MAIL_TO}" /etc/aliases 2>&1 >/dev/null; then
   echo sed "s/^root:.*/root: ${SMTP_MAIL_TO}/" -i /etc/aliases
   newaliases
 fi
 
-# enable logging to stdout
+# 启用日志输出到 stdout
 postconf -e "maillog_file = /dev/stdout"
 
-# fix for send-mail: fatal: parameter inet_interfaces: no local interface found for ::1
+# 修复 send-mail 问题: fatal: parameter inet_interfaces: no local interface found for ::1
 postconf -e "inet_protocols = ipv4"
 
-# set max message size limit
+# 设置最大邮件大小限制
 postconf -e "mailbox_size_limit = 0"
 postconf -e "message_size_limit = ${MESSAGE_SIZE_LIMIT}"
 
-# set from email address
+# 设置发件人邮箱地址
 if [ ! -z "$SMTP_MAIL_FROM" ]; then
   echo "/.+/ $SMTP_MAIL_FROM" > /etc/postfix/sender_canonical_maps
   echo "/From:.*/ REPLACE From: $SMTP_MAIL_FROM" > /etc/postfix/header_checks
@@ -482,30 +482,30 @@ if [ ! -z "$SMTP_MAIL_FROM" ]; then
 fi
 }
 
-## cron service
+## cron 服务
 cfgService_cron() {
   if   [ "$OS_RELEASE" = "debian" ]; then
     cronDir="/var/spool/cron/ing supervisord config fbs"
   else
     cronDir="/var/spool/cron"
   fi
-  
+
   if [ -e "$cronDir" ]; then
     if [ "$(stat -c "%U %G %a" "$cronDir")" != "root root 0700" ];then
-      echo "---> fixing permissions: '$cronDir'"
+      echo "---> 正在修复权限: '$cronDir'"
       chown root:root "$cronDir"
       chmod u=rwx,g=wx,o=t "$cronDir"
     fi
   fi
 }
 
-## parse and edit ini config files based on SECTION and KEY=VALUE
+## 根据 SECTION 和 KEY=VALUE 解析和编辑 ini 配置文件
 
-# input stream format: SECTION KEY=VALUE
+# 输入流格式: SECTION KEY=VALUE
 #   echo RECIDIVE ENABLED=false | iniParser /etc/fail2ban/jail.d/99-local.conf
 
-# FIXME: match all files sections right now
-# example for multple values using global env and parsing it before send to iniParser:
+# FIXME: 目前匹配所有文件节
+# 使用全局环境变量并在发送到 iniParser 之前进行解析的多值示例:
 #  set FAIL2BAN_DEFAULT_FINDTIME=3600
 #  set FAIL2BAN_DEFAULT_MAXRETRY=10
 #  set FAIL2BAN_RECIDIVE_ENABLED=false
@@ -521,23 +521,23 @@ iniParser() {
   done
 }
 
-## fail2ban service
+## fail2ban 服务
 cfgService_fail2ban() {
-  echo "--> reconfiguring Fail2ban settings..."
-  # ini config file parse function
-  # fix default log path
+  echo "--> 正在重新配置 Fail2ban 设置..."
+  # ini 配置文件解析函数
+  # 修复默认日志路径
   echo "DEFAULT LOGTARGET=/var/log/fail2ban/fail2ban.log" | iniParser "/etc/fail2ban/fail2ban.conf"
   touch /var/log/fail2ban/fail2ban.log
-  # configure all settings
+  # 配置所有设置
   set | grep ^"FAIL2BAN_" | sed -e 's/^FAIL2BAN_//' | sed -e 's/_/ /' | iniParser "/etc/fail2ban/jail.d/99-local.conf"
 }
 
-## apache service
+## Apache 服务
 cfgService_httpd() {
 
-  # local functions
+  # 本地函数
   print_ApacheAllowFrom() {
-    if [ ! -z "${HTTPD_ALLOW_FROM}" ]; then 
+    if [ ! -z "${HTTPD_ALLOW_FROM}" ]; then
         for IP in $(echo ${HTTPD_ALLOW_FROM} | sed -e "s/'//g") ; do
           echo "    Require ip ${IP}"
         done
@@ -546,7 +546,7 @@ cfgService_httpd() {
     fi
   }
 
-echo "--> setting Apache ServerName to ${SERVERNAME}"
+echo "--> 正在设置 Apache ServerName 为 ${SERVERNAME}"
 sed "s/#LoadModule mpm_prefork_module/LoadModule mpm_prefork_module/" -i "${HTTPD_CONF_DIR}/conf.modules.d/00-mpm.conf"
 sed "s/LoadModule mpm_event_module/#LoadModule mpm_event_module/"     -i "${HTTPD_CONF_DIR}/conf.modules.d/00-mpm.conf"
 sed "s/^#ServerName.*/ServerName ${SERVERNAME}/" -i "${HTTPD_CONF_DIR}/conf/httpd.conf"
@@ -554,19 +554,19 @@ sed "s/^User .*/User ${APP_USR}/"               -i "${HTTPD_CONF_DIR}/conf/httpd
 sed "s/^Group .*/Group ${APP_GRP}/"             -i "${HTTPD_CONF_DIR}/conf/httpd.conf"
 sed "s/^Listen .*/Listen ${APP_PORT_HTTP}/"       -i "${HTTPD_CONF_DIR}/conf/httpd.conf"
 
-# disable default ssl.conf and use virtual.conf
+# 禁用默认 ssl.conf 并使用 virtual.conf
 [ -e "${HTTPD_CONF_DIR}/conf.d/ssl.conf" ] && mv "${HTTPD_CONF_DIR}/conf.d/ssl.conf" "${HTTPD_CONF_DIR}/conf.d/ssl.conf-dist"
 
-echo "--> configuring Apache VirtualHosting and creating empty ${HTTPD_CONF_DIR}/conf.d/virtual.conf file"
+echo "--> 正在配置 Apache 虚拟主机并创建空的 ${HTTPD_CONF_DIR}/conf.d/virtual.conf 文件"
 echo "" > "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
 
-echo "# default virtualhost
+echo "# 默认虚拟主机
 
 <VirtualHost *:${APP_PORT_HTTP}>
   DocumentRoot /var/www/html" >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
-  
+
 if [ "${HTTPD_REDIRECT_HTTP_TO_HTTPS}" = "true" ]; then
-echo "--> setting automatic redirect from http to https for default virtualhost"
+echo "--> 正在为默认虚拟主机设置从 HTTP 到 HTTPS 的自动重定向"
 echo "  <IfModule mod_rewrite.c>
     RewriteEngine on
     RewriteCond %{REQUEST_URI} !\.well-known/acme-challenge
@@ -587,14 +587,14 @@ $(print_ApacheAllowFrom)
 " >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
 
 if [ ! -z "${APP_FQDN}" ]; then
-  echo "--> setting Apache VirtualHosting to: ${APP_FQDN} on port ${APP_PORT_HTTP}"
-  echo "# ${APP_FQDN} virtualhost
+  echo "--> 正在设置 Apache 虚拟主机为: ${APP_FQDN}，端口 ${APP_PORT_HTTP}"
+  echo "# ${APP_FQDN} 虚拟主机
   <VirtualHost *:${APP_PORT_HTTP}>
     ServerName ${APP_FQDN}" >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
-    
+
   if [ "${HTTPD_REDIRECT_HTTP_TO_HTTPS}" = "true" ]; then
-  echo "--> setting automatic redirect from http to https for ${APP_FQDN} virtualhost"
-  echo "# enable http to https automatic rewrite
+  echo "--> 正在为 ${APP_FQDN} 虚拟主机设置从 HTTP 到 HTTPS 的自动重定向"
+  echo "# 启用 HTTP 到 HTTPS 的自动重写
 <IfModule mod_rewrite.c>
   RewriteEngine on
   RewriteCond %{REQUEST_URI} !\.well-known/acme-challenge
@@ -605,8 +605,8 @@ if [ ! -z "${APP_FQDN}" ]; then
 </IfModule>
 " >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
   fi
-  
-  # close virtualhost directive
+
+  # 关闭虚拟主机指令
   echo "<Directory /var/www/html>
     Options Includes FollowSymLinks
     AllowOverride All
@@ -617,33 +617,33 @@ $(print_ApacheAllowFrom)
 fi
 
 if [ "${HTTPD_HTTPS_ENABLED}" = "true" ]; then
-  echo "--> enabling Apache SSL engine"
-  
-  ## recreate self-signed cert if needed
-  # detect CN of specified cert
+  echo "--> 正在启用 Apache SSL 引擎"
+
+  ## 如果需要，重新创建自签名证书
+  # 检测指定证书的 CN
   [ -e "${HTTPD_HTTPS_CERT_FILE}" ] && local CERT_CN=$(openssl x509 -noout -subject -in ${HTTPD_HTTPS_CERT_FILE} | sed 's/.*CN = //;s/, .*//')
-  
-  # define cert subject
+
+  # 定义证书主题
   [ -z "$APP_FQDN" ] && local CERT_SUBJ="/CN=izpbx" || CERT_SUBJ="/CN=$APP_FQDN"
 
   if [[ ! -e "${HTTPD_HTTPS_CERT_FILE}" && ! -e "${HTTPD_HTTPS_KEY_FILE}" ]]; then
-    echo "---> WARNING: the SSL certificate files (HTTPD_HTTPS_CERT_FILE=${HTTPD_HTTPS_CERT_FILE} HTTPD_HTTPS_KEY_FILE=${HTTPD_HTTPS_KEY_FILE}) doesn't exist"
-    echo "----> generating new self-signed certificate (with 10 years duration) to avoid web server crashing"
-    # make dirs if not exists
+    echo "---> 警告: SSL 证书文件 (HTTPD_HTTPS_CERT_FILE=${HTTPD_HTTPS_CERT_FILE} HTTPD_HTTPS_KEY_FILE=${HTTPD_HTTPS_KEY_FILE}) 不存在"
+    echo "----> 正在生成新的自签名证书（有效期 10 年）以避免 Web 服务器崩溃"
+    # 如果目录不存在则创建
     [ ! -e "$(dirname "${HTTPD_HTTPS_CERT_FILE}")" ] && mkdir "$(dirname "${HTTPD_HTTPS_CERT_FILE}")"
     [ ! -e "$(dirname "${HTTPD_HTTPS_KEY_FILE}")" ]  && mkdir "$(dirname "${HTTPD_HTTPS_KEY_FILE}")"
     openssl req -subj "$CERT_SUBJ" -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -keyout "${HTTPD_HTTPS_KEY_FILE}" -out "${HTTPD_HTTPS_CERT_FILE}"
   elif [[ ! -z "$APP_FQDN" && "$CERT_CN" = "izpbx" ]]; then
-    echo "---> WARNING: current SSL certificate CN '$CERT_CN' (${HTTPD_HTTPS_CERT_FILE}) doesn't match configured APP_FQDN '$APP_FQDN' variable"
-    echo "----> generating new self-signed certificate (with 10 years duration)"
+    echo "---> 警告: 当前 SSL 证书 CN '$CERT_CN' (${HTTPD_HTTPS_CERT_FILE}) 与配置的 APP_FQDN '$APP_FQDN' 变量不匹配"
+    echo "----> 正在生成新的自签名证书（有效期 10 年）"
     openssl req -subj "$CERT_SUBJ" -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 -keyout "${HTTPD_HTTPS_KEY_FILE}" -out "${HTTPD_HTTPS_CERT_FILE}"
   elif [[ ! -z "$APP_FQDN" && "$APP_FQDN" != "$CERT_CN" ]]; then
-    echo "---> WARNING: current SSL certificate CN '$CERT_CN' (${HTTPD_HTTPS_CERT_FILE}) doesn't match configured APP_FQDN '$APP_FQDN' variable"
-    echo "----> NOTE: FIX IT BY REPLACING THE WRONG CERTIFICATES"
+    echo "---> 警告: 当前 SSL 证书 CN '$CERT_CN' (${HTTPD_HTTPS_CERT_FILE}) 与配置的 APP_FQDN '$APP_FQDN' 变量不匹配"
+    echo "----> 注意: 请替换错误的证书来修复此问题"
   fi
 
   echo "
-# enable HTTPS listening
+# 启用 HTTPS 监听
 Listen ${APP_PORT_HTTPS} https
 SSLPassPhraseDialog    exec:/usr/libexec/httpd-ssl-pass-dialog
 SSLSessionCache        shmcb:/run/httpd/sslcache(512000)
@@ -652,18 +652,18 @@ SSLCryptoDevice        builtin
 " >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
 
   if [[ -z "${APP_FQDN}" && "${LETSENCRYPT_ENABLED}" = "true" ]]; then
-    echo "--> WARNING: LETSENCRYPT_ENABLED=${LETSENCRYPT_ENABLED} but not APP_FQDN defined, please set APP_FQDN to a valid Internet FQDN domain name and retry... enabling self signed certificate instead"
+    echo "--> 警告: LETSENCRYPT_ENABLED=${LETSENCRYPT_ENABLED} 但未定义 APP_FQDN，请将 APP_FQDN 设置为有效的互联网 FQDN 域名后重试... 改为启用自签名证书"
   fi
 
   if [[ ! -z "${APP_FQDN}" && "${LETSENCRYPT_ENABLED}" = "true" ]]; then
-    echo "# enable ssl virtualhost using Let's Encrypt certificates
+    echo "# 使用 Let's Encrypt 证书启用 SSL 虚拟主机
 <VirtualHost *:${APP_PORT_HTTPS}>
   ServerName ${APP_FQDN}
 
   ErrorLog                 logs/ssl_error_log
   TransferLog              logs/ssl_access_log
   LogLevel                 warn
-  
+
   SSLEngine               on
   SSLHonorCipherOrder     on
   SSLCipherSuite          PROFILE=SYSTEM
@@ -680,7 +680,7 @@ $(print_ApacheAllowFrom)
 </VirtualHost>
 " >> "${HTTPD_CONF_DIR}/conf.d/virtual.conf"
   else
-    echo "# enable default ssl virtualhost with self signed certificate
+    echo "# 启用默认 SSL 虚拟主机（使用自签名证书）
 <VirtualHost _default_:${APP_PORT_HTTPS}>
   ErrorLog                 logs/ssl_error_log
   TransferLog              logs/ssl_access_log
@@ -706,41 +706,41 @@ fi
 }
 
 cfgService_asterisk() {
-  echo "=> Starting Asterisk"
+  echo "=> 正在启动 Asterisk"
 }
 
 ## freepbx+asterisk service
 cfgService_izpbx() {
 
   freepbxReload() {
-    echo "---> reloading FreePBX..."
+    echo "---> 正在重新加载 FreePBX..."
     su - ${APP_USR} -s /bin/bash -c "fwconsole reload"
   }
-  
+
   freepbxChown() {
-    echo "---> setting FreePBX Permission..."
+    echo "---> 正在设置 FreePBX 权限..."
     fwconsole chown
   }
-  
-  freepbxSettingsFix() {
-    # reload freepbx config 
-    echo "---> FIXME: apply workarounds for FreePBX broken modules and configs..."
 
-    # make missing log files
+  freepbxSettingsFix() {
+    # 重新加载 freepbx 配置
+    echo "---> FIXME: 对 FreePBX 损坏的模块和配置应用临时解决方案..."
+
+    # 创建缺失的日志文件
     [ ! -e "${fpbxDirs[ASTLOGDIR]}/full" ] && touch "${fpbxDirs[ASTLOGDIR]}/full" && chown ${APP_USR}:${APP_GRP} "${file}" "${fpbxDirs[ASTLOGDIR]}/full"
-    
-    # fix paths and relink fwconsole and amportal if not exist
+
+    # 修正路径，并在不存在时重新链接 fwconsole 和 amportal
     [ ! -e "/usr/sbin/fwconsole" ] && ln -s ${fpbxDirs[AMPBIN]}/fwconsole /usr/sbin/fwconsole
     [ ! -e "/usr/sbin/amportal" ]  && ln -s ${fpbxDirs[AMPBIN]}/amportal  /usr/sbin/amportal
 
-    # reset FreePBX config file permissions
+    # 重置 FreePBX 配置文件权限
     for file in ${appFilesConf[@]}; do
       chown ${APP_USR}:${APP_GRP} "${file}"
     done
 
-    # fix freepbx directory paths
+    # 修正 freepbx 目录路径
     if [ ! -z "${APP_DATA}" ]; then
-      echo "----> fixing directory system paths in db configuration..."
+      echo "----> 正在修正数据库配置中的系统目录路径..."
       for k in ${!fpbxDirs[@]}; do
         [ "$(fwconsole setting ${k} | awk -F"[][{}]" '{print $2}')" != "${fpbxDirs[$k]}" ] && fwconsole setting ${k} ${fpbxDirs[$k]}
       done
@@ -749,31 +749,31 @@ cfgService_izpbx() {
       done
     fi
     
-    # fixing missing documentation that prevent loading extra codecs (like codec_opus)
+    # 修正缺失的文档目录，防止加载额外编解码器（如 codec_opus）时出现问题
     if [ ! -z "${APP_DATA}" ]; then
       if [ "$(ls -1 "${appDataDirs[ASTVARLIBDIR]}.dist/documentation/thirdparty/")" != "$(ls -1 "${APP_DATA}${appDataDirs[ASTVARLIBDIR]}/documentation/thirdparty/")" ]; then
-        echo "----> fixing asterisk documentation directory... ${APP_DATA}${appDataDirs[ASTVARLIBDIR]}/documentation/thirdparty"
+        echo "----> 正在修正 asterisk 文档目录... ${APP_DATA}${appDataDirs[ASTVARLIBDIR]}/documentation/thirdparty"
         rsync -a -P "${appDataDirs[ASTVARLIBDIR]}.dist/documentation/thirdparty/" "${APP_DATA}${appDataDirs[ASTVARLIBDIR]}/documentation/thirdparty/"
       fi
     fi
     
-    # FIXME @20200318 freepbx 15.x warnings workaround
+    # FIXME @20200318 freepbx 15.x 警告的临时解决方案
     sed 's/^preload = chan_local.so/;preload = chan_local.so/' -i ${fpbxDirs[ASTETCDIR]}/modules.conf
     sed 's/^enabled =.*/enabled = yes/' -i ${fpbxDirs[ASTETCDIR]}/hep.conf
-    
-    # FIXME @20200322 https://issues.freepbx.org/browse/FREEPBX-21317 (NOT MORE NEEDED)
+
+    # FIXME @20200322 https://issues.freepbx.org/browse/FREEPBX-21317（不再需要）
     #[ $(fwconsole ma list | grep backup | awk '{print $4}' | sed 's/\.//g') -lt 150893 ] && su - ${APP_USR} -s /bin/bash -c "fwconsole ma downloadinstall backup --edge"
-    
-    # FIXME @20210321 FreePBX doesn't configure into configuration DB the non default 'asteriskcdrdb' DB
+
+    # FIXME @20210321 FreePBX 不会将非默认的 'asteriskcdrdb' 数据库配置到 DB 中
     [ "$(fwconsole setting CDRDBNAME | awk -F"[][{}]" '{print $2}')" != "${MYSQL_DATABASE_CDR}" ] && fwconsole setting CDRDBNAME ${MYSQL_DATABASE_CDR}
-    
-    ## fix Asterisk/FreePBX file permissions
+
+    ## 修正 Asterisk/FreePBX 文件权限
     freepbxChown
   }
   
-  echo "---> verifing FreePBX configurations"
+  echo "---> 正在验证 FreePBX 配置"
 
-  # legend of freepbx install script:
+  # freepbx 安装脚本参数说明:
   #    --webroot=WEBROOT            Filesystem location from which FreePBX files will be served [default: "/var/www/html"]
   #    --astetcdir=ASTETCDIR        Filesystem location from which Asterisk configuration files will be served [default: "/etc/asterisk"]
   #    --astmoddir=ASTMODDIR        Filesystem location for Asterisk modules [default: "/usr/lib64/asterisk/modules"]
@@ -787,43 +787,43 @@ cfgService_izpbx() {
   #    --ampcgibin=AMPCGIBIN        Location of the Apache cgi-bin executables [default: "/var/www/cgi-bin"]
   #    --ampplayback=AMPPLAYBACK    Directory for FreePBX html5 playback files [default: "/var/lib/asterisk/playback"]
 
-  # transform associative array to variable=paths, ex. AMPWEBROOT=/var/www/html (not needed anymore)
+  # 将关联数组转换为 variable=paths，例如 AMPWEBROOT=/var/www/html（不再需要）
   #for k in ${!fpbxDirs[@]}      ; do eval $k=${fpbxDirs[$k]}      ;done
   #for k in ${!fpbxDirsExtra[@]} ; do eval $k=${fpbxDirsExtra[$k]} ;done
   #for k in ${!fpbxFilesLog[@]}  ; do eval $k=${fpbxFilesLog[$k]}  ;done    
 
-  ## enable PERSISTENCE and rebase directory paths, based on APP_DATA and create/chown missing directories
-  # process directories
+  ## 启用持久化并基于 APP_DATA 重定向目录路径，创建/修改缺失目录的属主
+  # 处理目录
   if [ ! -z "${APP_DATA}" ]; then
-    echo "---> using '${APP_DATA}' as basedir for FreePBX install"
-    # process directories
+    echo "---> 使用 '${APP_DATA}' 作为 FreePBX 安装的基础目录"
+    # 处理目录
     for k in ${!fpbxDirs[@]}; do
       v="${fpbxDirs[$k]}"
       eval fpbxDirs[$k]=${APP_DATA}$v
       [ ! -e "$v" ] && mkdir -p "$v"
       if [ "$(stat -c "%U %G" "$v" 2>/dev/null)" != "${APP_USR} ${APP_GRP}" ];then
-      echo "---> fixing permissions for: $k=$v"
+      echo "---> 正在修正权限: $k=$v"
       chown ${APP_USR}:${APP_GRP} "$v"
       fi
     done
     
-    # process logs files
+    # 处理日志文件
     for k in ${!fpbxFilesLog[@]}; do
       v="${fpbxFilesLog[$k]}"
       eval fpbxFilesLog[$k]=${APP_DATA}$v
       [ ! -e "$v" ] && touch "$v"
       if [ "$(stat -c "%U %G" "$v" 2>/dev/null)" != "${APP_USR} ${APP_GRP}" ];then
-      echo "---> fixing permissions for: $k=$v"
+      echo "---> 正在修正权限: $k=$v"
       chown ${APP_USR}:${APP_GRP} "$v"
       fi
     done
   fi
 
-  # configure CDR ODBC
-  echo "--> configuring FreePBX ODBC"
-  # fix mysql odbc inst file path
+  # 配置 CDR ODBC
+  echo "--> 正在配置 FreePBX ODBC"
+  # 修正 mysql odbc inst 文件路径
   sed -i 's/\/lib64\/libmyodbc5.so/\/lib64\/libmaodbc.so/' /etc/odbcinst.ini
-  # create mysql odbc
+  # 创建 mysql odbc
   echo "[MySQL-asteriskcdrdb]
 Description = MariaDB connection to '${MYSQL_DATABASE_CDR}' CDR database
 driver = MySQL
@@ -833,36 +833,36 @@ Port = ${APP_PORT_MYSQL}
 option = 3
 Charset=utf8" > /etc/odbc.ini
 
-  # LEGACY: workaround for missing ${APP_DATA}/.initialized file but already initialized izpbx deploy
+  # 遗留兼容：处理 ${APP_DATA}/.initialized 文件缺失但 izpbx 已部署的情况
   if [[ -e "${appFilesConf[FPBXCFGFILE]}" && ! -e ${APP_DATA}/.initialized ]]; then
-    echo "--> INFO: found '${appFilesConf[FPBXCFGFILE]}' configuration file but missing '${APP_DATA}/.initialized'... creating it right now"
-    echo "--> NOTE: if you want deploy izPBX from scratch, remove '${appFilesConf[FPBXCFGFILE]}' and '${APP_DATA}/.initialized' file"
+    echo "--> 信息: 找到 '${appFilesConf[FPBXCFGFILE]}' 配置文件但缺少 '${APP_DATA}/.initialized'... 正在创建"
+    echo "--> 注意: 如需从头部署 izPBX，请删除 '${appFilesConf[FPBXCFGFILE]}' 和 '${APP_DATA}/.initialized' 文件"
     touch "${APP_DATA}/.initialized"
   fi
   
-  # initialize izpbx if not already deployed
+  # 如果尚未部署则初始化 izpbx
   if [ ! -e ${APP_DATA}/.initialized ]; then
-      # first run detected initialize izpbx
+      # 首次运行，初始化 izpbx
       cfgService_freepbx_install
-      # save the current installed freepbx version
+      # 保存当前已安装的 freepbx 版本
       FREEPBX_VER_INSTALLED="$(${fpbxDirs[AMPBIN]}/fwconsole -V | awk '{print $NF}' | awk -F'.' '{print $1}')"
     else
-      # save the current installed freepbx version
+      # 保存当前已安装的 freepbx 版本
       FREEPBX_VER_INSTALLED="$(${fpbxDirs[AMPBIN]}/fwconsole -V | awk '{print $NF}' | awk -F'.' '{print $1}')"
-      
-      # 'fwconsole -V' is not always reliable, reading current installed version directly from database
+
+      # 'fwconsole -V' 并非总是可靠，直接从数据库读取当前安装版本
       if [ -z "${FREEPBX_VER_INSTALLED##*[!0-9]*}" ]; then
         FREEPBX_VER_INSTALLED="$(mysql -h ${MYSQL_SERVER} -u ${MYSQL_USER} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} --batch --skip-column-names --raw --execute="SELECT value FROM admin WHERE variable = 'version';" | awk '{print $NF}' | awk -F'.' '{print $1}')"
       fi
-      
-      # save version into .initialized file if empty
+
+      # 如果为空则将版本保存到 .initialized 文件
       #[ -z "$(cat "${APP_DATA}/.initialized")" ] && ${fpbxDirs[AMPBIN]}/fwconsole -V > "${APP_DATA}/.initialized"
-      
-      echo "--> INFO: found '${APP_DATA}/.initialized' file - Detected FreePBX version: $FREEPBX_VER_INSTALLED"
-      [ ! -e "${appFilesConf[FPBXCFGFILE]}" ] && echo "---> WARNING: missing configuration file: ${appFilesConf[FPBXCFGFILE]}"
-      
-      # izpbx is already initialized, update configuration files
-      echo "---> reconfiguring '${appFilesConf[FPBXCFGFILE]}'..."
+
+      echo "--> 信息: 找到 '${APP_DATA}/.initialized' 文件 - 检测到 FreePBX 版本: $FREEPBX_VER_INSTALLED"
+      [ ! -e "${appFilesConf[FPBXCFGFILE]}" ] && echo "---> 警告: 缺少配置文件: ${appFilesConf[FPBXCFGFILE]}"
+
+      # izpbx 已初始化，更新配置文件
+      echo "---> 正在重新配置 '${appFilesConf[FPBXCFGFILE]}'..."
       [[ ! -z "${APP_PORT_MYSQL}" && ${APP_PORT_MYSQL} -ne 3306 ]] && export MYSQL_SERVER="${MYSQL_SERVER}:${APP_PORT_MYSQL}"
       sed "s/^\$amp_conf\['AMPDBHOST'\] =.*/\$amp_conf\['AMPDBHOST'\] = '${MYSQL_SERVER}';/"   -i "${appFilesConf[FPBXCFGFILE]}"
       sed "s/^\$amp_conf\['AMPDBNAME'\] =.*/\$amp_conf\['AMPDBNAME'\] = '${MYSQL_DATABASE}';/" -i "${appFilesConf[FPBXCFGFILE]}"
@@ -870,11 +870,11 @@ Charset=utf8" > /etc/odbc.ini
       sed "s/^\$amp_conf\['AMPDBPASS'\] =.*/\$amp_conf\['AMPDBPASS'\] = '${MYSQL_PASSWORD}';/" -i "${appFilesConf[FPBXCFGFILE]}"
   fi
 
-  # apply workarounds and fixes for FreePBX bugs
+  # 对 FreePBX bug 应用临时修复和解决方案
   freepbxSettingsFix
-  
-  # reconfigure freepbx from env variables
-  echo "---> reconfiguring FreePBX Advanced Settings if needed..."
+
+  # 从环境变量重新配置 freepbx
+  echo "---> 正在根据需要重新配置 FreePBX 高级设置..."
   set | grep ^"FREEPBX_" | grep -v -e ^"FREEPBX_MODULES_" -e ^"FREEPBX_AUTOUPGRADE_" -e ^"FREEPBX_VER" | sed -e 's/^FREEPBX_//' -e 's/=/ /' | while read setting ; do
     k="$(echo $setting | awk '{print $1}')"
     v="$(echo $setting | awk '{print $2}')"
@@ -882,30 +882,30 @@ Charset=utf8" > /etc/odbc.ini
     [ "$currentVal" = "true" ] && currentVal="1"
     [ "$currentVal" = "false" ] && currentVal="0"
     if [ "$currentVal" != "$v" ]; then
-      echo "---> reconfiguring advanced setting: ${k}=${v}"
+      echo "---> 正在重新配置高级设置: ${k}=${v}"
       fwconsole setting $k $v
     fi
   done
 
-  # reconfigure freepbx settings based on docker variables content using FreePBX API bootstrap
-  echo "---> reconfiguring FreePBX SIP Settings if needed..."
+  # 使用 FreePBX API bootstrap 基于 docker 变量内容重新配置 freepbx 设置
+  echo "---> 正在根据需要重新配置 FreePBX SIP 设置..."
   for k in ${!fpbxSipSettings[@]}; do
     v="${fpbxSipSettings[$k]}"
     cVal=$(echo "<?php include '/etc/freepbx.conf'; \$FreePBX = FreePBX::Create(); echo \$FreePBX->sipsettings->getConfig('${k}');?>" | php)
     if [ "$cVal" != "${v}" ];then
-      echo "---> reconfiguring sip setting: ${k}=${v}"
+      echo "---> 正在重新配置 SIP 设置: ${k}=${v}"
       echo "<?php include '/etc/freepbx.conf'; \$FreePBX = FreePBX::Create(); \$FreePBX->sipsettings->setConfig('${k}',${v}); needreload();?>" | php
     fi
   done
 
-  # FIXME: 20200315 iaxsettings doesn't works right now
-  #echo "---> reconfiguring FreePBX IAX2 settings if needed..."
+  # FIXME: 20200315 iaxsettings 目前无法正常工作
+  #echo "---> 正在根据需要重新配置 FreePBX IAX2 设置..."
   #for k in ${!freepbxIaxSettings[@]}; do
   #  v="${freepbxIaxSettings[$k]}"
   #  echo "<?php include '/etc/freepbx.conf'; \$FreePBX = FreePBX::Create(); \$FreePBX->iaxsettings->setConfig('${k}',${v}); needreload();?>" | php
   #done
-  
-  # check if we need to upgrade FreePBX to a major version
+
+  # 检查是否需要升级 FreePBX 主版本
   cfgService_freepbx_upgrade_check
 }
 
@@ -915,25 +915,25 @@ cfgService_freepbx_upgrade_check() {
     if [ $FREEPBX_VER_INSTALLED -lt $FREEPBX_VER ];then
       echo
       echo "=========================================================================================="
-      echo "==> !!! UPGRADABLE FreePBX installation detetected !!!"
+      echo "==> !!! 检测到可升级的 FreePBX 安装 !!!"
       echo "=========================================================================================="
-      echo "==> Installed FreePBX version: ${FREEPBX_VER_INSTALLED}"
-      echo "==> Available FreePBX version: ${FREEPBX_VER}"
+      echo "==> 已安装 FreePBX 版本: ${FREEPBX_VER_INSTALLED}"
+      echo "==> 可用 FreePBX 版本: ${FREEPBX_VER}"
       echo "=========================================================================================="
       if [ "$FREEPBX_AUTOUPGRADE_CORE" = "true" ]; then
-        echo "==> INFO: FreePBX automatic upgrade ENABLED"
-        echo "==> ATTENTION: make sure to have backed up your installation before upgrading"
+        echo "==> 信息: FreePBX 自动升级已启用"
+        echo "==> 注意: 升级前请确保已备份您的安装"
         let UPGRADABLE=${FREEPBX_VER}-${FREEPBX_VER_INSTALLED}
         if [ $UPGRADABLE = 1 ]; then
             cfgService_freepbx_upgrade
           else
             echo
-            echo "==> WARNING: Unable to upgrade FreePBX directly from ${FREEPBX_VER_INSTALLED} to ${FREEPBX_VER} release"
-            echo "==>          You must upgrade to the previous major version before going to ${FREEPBX_VER} release"
+            echo "==> 警告: 无法直接从 ${FREEPBX_VER_INSTALLED} 升级到 ${FREEPBX_VER} 版本"
+            echo "==>          您必须先升级到前一个主版本，然后再升级到 ${FREEPBX_VER} 版本"
             echo
         fi
         else
-          echo "==> INFO: FreePBX automatic upgrade DISABLED"
+          echo "==> 信息: FreePBX 自动升级已禁用"
           echo
       fi
     fi
@@ -942,42 +942,42 @@ cfgService_freepbx_upgrade_check() {
 
 cfgService_freepbx_upgrade() {
   echo "=========================================================================================="
-  echo "==> START UPGRADING FreePBX from '${FREEPBX_VER_INSTALLED}' to '${FREEPBX_VER}'"
-  # FIXME: @20211128 workaround
+  echo "==> 开始升级 FreePBX 从 '${FREEPBX_VER_INSTALLED}' 到 '${FREEPBX_VER}'"
+  # FIXME: @20211128 临时方案
   [ -e "/tmp/cron.error" ] && rm -f /tmp/cron.error
-  
-  # FIXME: @20211130 check on future version if this is still needed
-  echo "--> step:[1] FIXME: patching 'Encoding.php' for issue: https://issues.freepbx.org/browse/FREEPBX-21703"
+
+  # FIXME: @20211130 检查未来版本是否仍需此操作
+  echo "--> 步骤:[1] FIXME: 正在为问题 FREEPBX-21703 打补丁 'Encoding.php'"
   patch "${fpbxDirs[AMPWEBROOT]}/admin/libraries/Composer/vendor/neitanod/forceutf8/src/ForceUTF8/Encoding.php" "/usr/src/php74.patch"
-  echo "--> step:[2] starting freepbx services"
+  echo "--> 步骤:[2] 正在启动 freepbx 服务"
   fwconsole start
-  echo "--> step:[3] upgrading all modules"
+  echo "--> 步骤:[3] 正在升级所有模块"
   fwconsole ma upgradeall
-  echo "--> step:[4] installing versionupgrade modules"
+  echo "--> 步骤:[4] 正在安装 versionupgrade 模块"
   fwconsole ma downloadinstall versionupgrade
   fwconsole chown
   fwconsole reload
-  echo "--> step:[5] upgrading from FreePBX $FREEPBX_VER_INSTALLED to $FREEPBX_VER"
+  echo "--> 步骤:[5] 正在从 FreePBX $FREEPBX_VER_INSTALLED 升级到 $FREEPBX_VER"
   #fwconsole versionupgrade --check
   fwconsole versionupgrade --upgrade
   if [ $? != 0 ]; then
-    # FIXME: @20211130 check on future version if this is still needed
-    echo "--> step:[5-b] FIXME: applying workaround for issue: https://issues.freepbx.org/browse/FREEPBX-22983"
-    # refs: https://community.freepbx.org/t/2021-09-17-security-fixes-release-update/78054
+    # FIXME: @20211130 检查未来版本是否仍需此操作
+    echo "--> 步骤:[5-b] FIXME: 正在为问题 FREEPBX-22983 应用临时解决方案"
+    # 参考: https://community.freepbx.org/t/2021-09-17-security-fixes-release-update/78054
     fwconsole ma downloadinstall framework --tag=16.0.10.42
-    echo "--> step:[5-c] upgradind all modules again"
+    echo "--> 步骤:[5-c] 正在再次升级所有模块"
     fwconsole ma upgradeall
   fi
-  echo "--> step:[6] finalizing upgrade"
+  echo "--> 步骤:[6] 正在完成升级"
   fwconsole chown
   fwconsole reload
   fwconsole stop
-  echo "==> END UPGRADING FreePBX from '${FREEPBX_VER_INSTALLED}' to '${FREEPBX_VER}'"
+  echo "==> 升级完成: FreePBX 从 '${FREEPBX_VER_INSTALLED}' 到 '${FREEPBX_VER}'"
   echo "=========================================================================================="
   echo
 }
 
-# install FreePBX if not installed
+# 如果 FreePBX 未安装则安装
 cfgService_freepbx_install() {
 
   mysqlQuery() {
@@ -988,29 +988,29 @@ cfgService_freepbx_install() {
     mysqlQuery "SELECT 1;" >/dev/null
   }
   
-  # counter for global attempts
+  # 全局尝试计数器
   n=1 ; t=5
   
   until [ $n -eq $t ]; do
   cd /usr/src/freepbx
   echo
   echo "====================================================================="
-  echo "=> !!! NEW INSTALLATION DETECTED :: FreePBX IS NOT INITIALIZED !!! <="
+  echo "=> !!! 检测到全新安装 :: FreePBX 尚未初始化 !!! <="
   echo "====================================================================="
-  echo "--> missing '${APP_DATA}/.initialized' file... initializing FreePBX right now... try:[$n/$t]"
+  echo "--> 缺少 '${APP_DATA}/.initialized' 文件... 正在初始化 FreePBX... 尝试:[$n/$t]"
 
-  # use mysql user if MYSQL_ROOT_PASSWORD is not defined and skip initial MySQL deploy
+  # 如果未定义 MYSQL_ROOT_PASSWORD 则使用 mysql 用户，并跳过初始 MySQL 部署
   if [ -z "${MYSQL_ROOT_PASSWORD}" ]; then
-    echo "--> NOTE: skipping MySQL init because not root user password defined"
+    echo "--> 注意: 未定义 root 用户密码，跳过 MySQL 初始化"
     MYSQL_ROOT_USER="${MYSQL_USER}"
     MYSQL_ROOT_PASSWORD="${MYSQL_PASSWORD}"
     SKIP_MYSQL_INIT="true"
   fi
   
-  # start asterisk if it's not running
+  # 如果 asterisk 未运行则启动
   if ! asterisk -r -x "core show version" 2>/dev/null ; then ./start_asterisk start ; fi
-  
-  # counter for connecting to MySQL database
+
+  # 连接 MySQL 数据库的计数器
   myn=1 ; myt=10
   
   until [ $myn -eq $myt ]; do
@@ -1020,19 +1020,19 @@ cfgService_freepbx_install() {
         myn=$myt
       else
         let myn+=1
-        echo "--> WARNING: cannot connect to MySQL database '${MYSQL_SERVER}'... waiting database to become ready... retrying in 10 seconds... try:[$myn/$myt]"
+        echo "--> 警告: 无法连接到 MySQL 数据库 '${MYSQL_SERVER}'... 等待数据库就绪... 10 秒后重试... 尝试:[$myn/$myt]"
         sleep 10
     fi
   done
   
-  # latest check if MySQL is reachable otherwhise exit and don't try to install FreePBX
-  checkMysql && [ $? != 0 ] && "=> ERROR: UNABLE TO CONNECT TO THE MYSQL DATABASE AFTER $myt ATTEMPTS. Check the db connection, username, password and permissions... exiting" && exit 1
-  
-  echo "--> installing FreePBX in '${fpbxDirs[AMPWEBROOT]}'"
-  echo "---> START install FreePBX @ $(date)"
+  # 最终检查 MySQL 是否可达，否则退出并不尝试安装 FreePBX
+  checkMysql && [ $? != 0 ] && "=> 错误: ${myt} 次尝试后仍无法连接到 MySQL 数据库。请检查数据库连接、用户名、密码和权限... 正在退出" && exit 1
+
+  echo "--> 正在安装 FreePBX 到 '${fpbxDirs[AMPWEBROOT]}'"
+  echo "---> 开始安装 FreePBX @ $(date)"
   # https://github.com/FreePBX/announcement/archive/release/15.0.zip
   
-  # set default freepbx install options
+  # 设置默认 freepbx 安装选项
   FPBX_OPTS+=" --webroot=${fpbxDirs[AMPWEBROOT]}"
   FPBX_OPTS+=" --astetcdir=${fpbxDirs[ASTETCDIR]}"
   FPBX_OPTS+=" --astmoddir=${fpbxDirs[ASTMODDIR]}"
@@ -1046,41 +1046,41 @@ cfgService_freepbx_install() {
   FPBX_OPTS+=" --ampcgibin=${fpbxDirs[AMPCGIBIN]}"
   FPBX_OPTS+=" --ampplayback=${fpbxDirs[AMPPLAYBACK]}"
   
-  # if mysql run in a non standard port change the mysql server address
+  # 如果 mysql 运行在非标准端口，则更改 mysql 服务器地址
   [[ ! -z "${APP_PORT_MYSQL}" && ${APP_PORT_MYSQL} -ne 3306 ]] && export MYSQL_SERVER="${MYSQL_SERVER}:${APP_PORT_MYSQL}"
   #set -x
   
-  ## create mysql users and databases if not exists
+  ## 创建 mysql 用户和数据库（如果不存在）
   if [ "$SKIP_MYSQL_INIT" != "true" ]; then
-    echo "---> creating and grantig access to FreePBX databases: ${MYSQL_DATABASE}, ${MYSQL_DATABASE_CDR}"
-    # freepbx mysql user
+    echo "---> 正在创建并授权 FreePBX 数据库: ${MYSQL_DATABASE}, ${MYSQL_DATABASE_CDR}"
+    # freepbx mysql 用户
     mysqlQuery "CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';"
-    # freepbx asterisk config db
+    # freepbx asterisk 配置数据库
     mysqlQuery "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE}"
     mysqlQuery "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;"
-    # freepbx asterisk cdr db
+    # freepbx asterisk CDR 数据库
     mysqlQuery "CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE_CDR}"
     mysqlQuery "GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE_CDR}.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;"
   fi
   
-  # veirfy if databases exist and we can access
-  mysqlQuery "USE ${MYSQL_DATABASE};"     ; [ $? != 0 ] && echo "---> WARNING: unable to access ${MYSQL_DATABASE} DB. Please check if exist and the permissions... exiting" && exit 1
-  mysqlQuery "USE ${MYSQL_DATABASE_CDR};" ; [ $? != 0 ] && echo "---> WARNING: unable to access ${MYSQL_DATABASE_CDR} DB. Please check if exist and the permissions... exiting" && exit 1
-  
-  # install freepbx
+  # 验证数据库是否存在且可访问
+  mysqlQuery "USE ${MYSQL_DATABASE};"     ; [ $? != 0 ] && echo "---> 警告: 无法访问 ${MYSQL_DATABASE} 数据库。请检查数据库是否存在以及权限... 正在退出" && exit 1
+  mysqlQuery "USE ${MYSQL_DATABASE_CDR};" ; [ $? != 0 ] && echo "---> 警告: 无法访问 ${MYSQL_DATABASE_CDR} 数据库。请检查数据库是否存在以及权限... 正在退出" && exit 1
+
+  # 安装 freepbx
   set -x
   ./install -n --skip-install --no-ansi --dbhost=${MYSQL_SERVER} --dbuser=${MYSQL_USER} --dbpass=${MYSQL_PASSWORD} --dbname=${MYSQL_DATABASE} --cdrdbname=${MYSQL_DATABASE_CDR} ${FPBX_OPTS}
   RETVAL=$?
   set +x
-  echo "---> END install FreePBX @ $(date)"
+  echo "---> 结束安装 FreePBX @ $(date)"
   unset FPBX_OPTS
- 
-  # if the install success exec
+
+  # 如果安装成功
   if [ $RETVAL = 0 ]; then
-    # apply workarounds and fix for FreePBX open bugs
+    # 对 FreePBX 已知 bug 应用修复和临时解决方案
     freepbxSettingsFix
     #freepbxChown
-   
+
     : ${FREEPBX_MODULES_CORE:="
       framework
       core
@@ -1089,7 +1089,7 @@ cfgService_freepbx_install() {
       voicemail
     "}
 
-    # ordered modules install
+    # 有序模块安装
     : ${FREEPBX_MODULES_PRE:="
       userman
       pm2
@@ -1139,41 +1139,41 @@ cfgService_freepbx_install() {
       ucp
     "}
 
-    # disabled modules
+    # 禁用的模块
     : ${FREEPBX_MODULES_DISABLED:="
     "}
-    
-    echo "--> enabling EXTENDED FreePBX repo..."
+
+    echo "--> 正在启用扩展 FreePBX 仓库..."
     su - ${APP_USR} -s /bin/bash -c "fwconsole ma enablerepo extended"
     su - ${APP_USR} -s /bin/bash -c "fwconsole ma enablerepo unsupported"
-    
-    echo "--> installing Prerequisite FreePBX modules from local repo into '${fpbxDirs[AMPWEBROOT]}/admin/modules'"
+
+    echo "--> 正在从本地仓库安装 FreePBX 前置模块到 '${fpbxDirs[AMPWEBROOT]}/admin/modules'"
     for module in ${FREEPBX_MODULES_PRE}; do
-      echo "---> installing module: ${module}"
-      # the pre-modules need be installed as root
+      echo "---> 正在安装模块: ${module}"
+      # 前置模块需要以 root 身份安装
       su - ${APP_USR} -s /bin/bash -c "fwconsole ma install ${module}"
     done
-    
-    echo "--> installing Extra FreePBX modules from local repo into '${fpbxDirs[AMPWEBROOT]}/admin/modules'"
+
+    echo "--> 正在从本地仓库安装 FreePBX 扩展模块到 '${fpbxDirs[AMPWEBROOT]}/admin/modules'"
     for module in ${FREEPBX_MODULES_EXTRA}; do
-      echo "---> installing module: ${module}"
+      echo "---> 正在安装模块: ${module}"
       su - ${APP_USR} -s /bin/bash -c "fwconsole ma install ${module}"
     done
 
     if [ "${FREEPBX_AUTOUPDATE_MODULES_FIRSTDEPLOY}" = "true" ]; then
-      echo "--> auto upgrading FreePBX modules"
+      echo "--> 正在自动升级 FreePBX 模块"
       su - ${APP_USR} -s /bin/bash -c "fwconsole ma upgradeall"
     fi
-    
-    # reload freePBX
+
+    # 重新加载 freePBX
     freepbxReload
     
-    # make this deploy initialized
+    # 标记此次部署为已初始化
     touch "${APP_DATA}/.initialized"
-    # save current FreePBX version number
+    # 保存当前 FreePBX 版本号
     [ -z "$(cat "${APP_DATA}/.initialized")" ] && ${fpbxDirs[AMPBIN]}/fwconsole -V > "${APP_DATA}/.initialized"
-    
-    # DEBUG: pause here
+
+    # 调试：在此暂停
     #sleep 300
   fi
 
@@ -1181,30 +1181,30 @@ cfgService_freepbx_install() {
       n=$t
     else
       let n+=1
-      echo "--> problem detected when trying to install FreePBX... restarting in 10 seconds... try:[$n/$t]"
+      echo "--> 安装 FreePBX 时出现问题... 10 秒后重新开始... 尝试:[$n/$t]"
       sleep 10
   fi
   done
   
-  # stop asterisk
-  if asterisk -r -x "core show version" 2>/dev/null ; then 
-    echo "--> stopping Asterisk"
+  # 停止 asterisk
+  if asterisk -r -x "core show version" 2>/dev/null ; then
+    echo "--> 正在停止 Asterisk"
     asterisk -r -x "core stop now"
-    echo "=> Finished installing FreePBX"
+    echo "=> FreePBX 安装完成"
   fi
   echo "======================================================================"
 }
 
-## dnsmasq service
+## dnsmasq 服务
 cfgService_dnsmasq() {
   [ "$DHCP_ENABLED" = "true" ] && cfgService_dhcp
   [ "$TFTP_ENABLED" = "true" ] && cfgService_tftp
 }
 
-## chronyd service (ntp server)
+## chronyd 服务（NTP 服务器）
 cfgService_ntp() {
-  # disable default ntp pools addresses if NTP_SERVERS var is set
-  echo "# chronyd ntp server configuration
+  # 如果设置了 NTP_SERVERS 变量，则禁用默认的 ntp pool 地址
+  echo "# chronyd ntp 服务器配置
 driftfile /var/lib/chrony/drift
 makestep 1.0 3
 rtcsync
@@ -1219,13 +1219,13 @@ $(for subnet in $NTP_ALLOW_FROM ; do echo "allow $subnet"; done)
 " > /etc/chrony.conf
 }
 
-## dhcp service
+## dhcp 服务
 cfgService_dhcp() {
-  echo "--> configuring DHCP service"
+  echo "--> 正在配置 DHCP 服务"
   if [[ ! -z "$DHCP_POOL_START" || ! -z "$DHCP_POOL_END" || ! -z "$DHCP_POOL_LEASE" ]]; then
     sed "s|^#dhcp-range=.*|dhcp-range=$DHCP_POOL_START,$DHCP_POOL_END,$DHCP_POOL_LEASE|" -i "${appDataDirs[DNSMASQDIR]}/local.conf"
   else
-    echo "--> WARNING: DHCP server enabled but specify DHCP_POOL_START:[$DHCP_POOL_START] DHCP_POOL_END:[$DHCP_POOL_END] DHCP_POOL_LEASE:[$DHCP_POOL_LEASE]"
+    echo "--> 警告: DHCP 服务器已启用但请指定 DHCP_POOL_START:[$DHCP_POOL_START] DHCP_POOL_END:[$DHCP_POOL_END] DHCP_POOL_LEASE:[$DHCP_POOL_LEASE]"
   fi
   
   if [ ! -z "$DHCP_DOMAIN" ]; then
@@ -1243,24 +1243,24 @@ cfgService_dhcp() {
   [ ! -z "$DHCP_NTP" ] && sed "s|^#dhcp-option=option:ntp-server,.*|dhcp-option=option:ntp-server,$DHCP_NTP|" -i "${appDataDirs[DNSMASQDIR]}/local.conf"
 }
 
-## tftp service
+## tftp 服务
 cfgService_tftp() {
-  echo "--> configuring TFTP service"
+  echo "--> 正在配置 TFTP 服务"
   sed "s|^#dhcp-option=66|dhcp-option=66|"                  -i "${appDataDirs[DNSMASQDIR]}/local.conf"
   sed "s|^#enable-tftp|enable-tftp|"                        -i "${appDataDirs[DNSMASQDIR]}/local.conf"
   sed "s|^#tftp-root=.*|tftp-root=${appDataDirs[TFTPDIR]}|" -i "${appDataDirs[DNSMASQDIR]}/local.conf"
 }
 
-## zabbix service
+## zabbix 服务
 cfgService_zabbix() {
-  # comment zabbix global config
+  # 注释 zabbix 全局配置
   if [ -w "$ZABBIX_CONF" ]; then
     sed 's/^LogFile=/#LogFile=/g' -i $ZABBIX_CONF
     sed 's/^Hostname=/#Hostname=/g' -i $ZABBIX_CONF
     sed 's/^Server=/#Server=/g' -i $ZABBIX_CONF
     sed 's/^ServerActive=/#ServerActive=/g' -i $ZABBIX_CONF
   fi
-  # zabbix user defined local config
+  # zabbix 用户自定义本地配置
   echo "#DebugLevel=4
 #LogFileSize=1
 #EnableRemoteCommands=1
@@ -1287,66 +1287,66 @@ cfgService_fop2 () {
   [ ! -e "${appDataDirs[FOP2APPDIR]}/fop2.cfg" ] && cfgService_fop2_install
 
   if [ -e "${appDataDirs[FOP2APPDIR]}/fop2.cfg" ]; then
-    # obtain asterisk manager configs from freepbx
+    # 从 freepbx 获取 asterisk manager 配置
     : ${FOP2_AMI_HOST:="$(fwconsole setting ASTMANAGERHOST | awk -F"[][{}]" '{print $2}')"}
     : ${FOP2_AMI_PORT:="$(fwconsole setting ASTMANAGERPORT | awk -F"[][{}]" '{print $2}')"}
     : ${FOP2_AMI_USERNAME:="$(fwconsole setting AMPMGRUSER | awk -F"[][{}]" '{print $2}')"}
     : ${FOP2_AMI_PASSWORD:="$(fwconsole setting AMPMGRPASS | awk -F"[][{}]" '{print $2}')"}
   
-    # reconfigure fop2.cfg
+    # 重新配置 fop2.cfg
     sed "s|^manager_host.*=.*|manager_host=${FOP2_AMI_HOST}|" -i "${appDataDirs[FOP2APPDIR]}/fop2.cfg"
     sed "s|^manager_port.*=.*|manager_port=${FOP2_AMI_PORT}|" -i "${appDataDirs[FOP2APPDIR]}/fop2.cfg"
     sed "s|^manager_user.*=.*|manager_user=${FOP2_AMI_USERNAME}|" -i "${appDataDirs[FOP2APPDIR]}/fop2.cfg"
     sed "s|^manager_secret.*=.*|manager_secret=${FOP2_AMI_PASSWORD}|" -i "${appDataDirs[FOP2APPDIR]}/fop2.cfg"
    
-    # FOP2 License Code Management
-    # licensed interface
+    # FOP2 许可证代码管理
+    # 许可接口
     [ -z "${FOP2_LICENSE_IFACE}" ] && FOP2_LICENSE_IFACE=eth0
     FOP2_LICENSE_OPTS+=" --rp=http --iface ${FOP2_LICENSE_IFACE}"
-    # modify fop2 command if interface name is specified
+    # 如果指定了接口名称，则修改 fop2 命令
     [ ! -z "${FOP2_LICENSE_IFACE}" ] && sed "s|^command.*=.*|command=/usr/local/fop2/fop2_server -i ${FOP2_LICENSE_IFACE}|" -i "${SUPERVISOR_DIR}/fop2.ini"
-    
-    # fop2 version upgrade check
+
+    # fop2 版本升级检查
     if [ "$FOP2_AUTOUPGRADE" = "true" ]; then
       [ -e "${appDataDirs[FOP2APPDIR]}/fop2_server" ] && FOP2_VER_CUR=$("${appDataDirs[FOP2APPDIR]}/fop2_server" -v 2>/dev/null | awk '{print $3}')
       if   [ $(check_version $FOP2_VER_CUR) -lt $(check_version $FOP2_VER) ]; then
-        echo "=> INFO: FOP2 update detected... upgrading from $FOP2_VER_CUR to $FOP2_VER"
+        echo "=> 信息: 检测到 FOP2 更新... 正在从 $FOP2_VER_CUR 升级到 $FOP2_VER"
         cfgService_fop2_upgrade
       elif [ $(check_version $FOP2_VER_CUR) -gt $(check_version $FOP2_VER) ]; then
-        echo "=> WARNING: Specified FOP2_VER=$FOP2_VER is older than installed version: $FOP2_VER_CUR"
+        echo "=> 警告: 指定的 FOP2_VER=$FOP2_VER 比已安装版本 $FOP2_VER_CUR 更旧"
       else
-        echo "=> INFO: Specified FOP2_VER=$FOP2_VER, installed version: $FOP2_VER_CUR"
+        echo "=> 信息: 指定的 FOP2_VER=$FOP2_VER，已安装版本: $FOP2_VER_CUR"
       fi
     fi
     
     if [ ! -e "${appDataDirs[FOP2APPDIR]}/fop2.lic" ]; then
         if [ -z "${FOP2_LICENSE_CODE}" ]; then
-            echo "--> INFO: FOP2 is not licensed and no 'FOP2_LICENSE_CODE' variable defined... running in Demo Mode"
+            echo "--> 信息: FOP2 未授权且未定义 'FOP2_LICENSE_CODE' 变量... 以演示模式运行"
           else
-            echo "--> INFO: Registering FOP2"
-            echo "---> NAME: ${FOP2_LICENSE_NAME}"
-            echo "---> CODE: ${FOP2_LICENSE_CODE}"
-            echo "---> IFACE: ${FOP2_LICENSE_IFACE} ($(ip a show dev ${FOP2_LICENSE_IFACE} | grep 'link/ether' | awk '{print $2}'))"
+            echo "--> 信息: 正在注册 FOP2"
+            echo "---> 名称: ${FOP2_LICENSE_NAME}"
+            echo "---> 代码: ${FOP2_LICENSE_CODE}"
+            echo "---> 接口: ${FOP2_LICENSE_IFACE} ($(ip a show dev ${FOP2_LICENSE_IFACE} | grep 'link/ether' | awk '{print $2}'))"
             set -x
             ${appDataDirs[FOP2APPDIR]}/fop2_server --register --name "${FOP2_LICENSE_NAME}" --code "${FOP2_LICENSE_CODE}" $FOP2_LICENSE_OPTS
             set +x
-            echo "--> INFO: FOP2 license code info:"
+            echo "--> 信息: FOP2 许可证代码信息:"
             ${appDataDirs[FOP2APPDIR]}/fop2_server --getinfo $FOP2_LICENSE_OPTS
-            echo "--> INFO: FOP2 license code status:"
+            echo "--> 信息: FOP2 许可证代码状态:"
             ${appDataDirs[FOP2APPDIR]}/fop2_server --test $FOP2_LICENSE_OPTS
         fi
       else
         #FOP2_LICENSE_STATUS="$(${appDataDirs[FOP2APPDIR]}/fop2_server --getinfo $FOP2_LICENSE_OPTS)"
         FOP2_LICENSE_STATUS="$(${appDataDirs[FOP2APPDIR]}/fop2_server --test $FOP2_LICENSE_OPTS)"
         if [ ! -z "$(echo $FOP2_LICENSE_STATUS | grep "Demo")" ]; then
-          echo "--> WARNING: Reactivating FOP2 license because:"
+          echo "--> 警告: 正在重新激活 FOP2 许可证，因为:"
           echo $FOP2_LICENSE_STATUS
           set -x
           ${appDataDirs[FOP2APPDIR]}/fop2_server --reactivate $FOP2_LICENSE_OPTS
           local RETVAL=$?
           set +x
           if [ $RETVAL != 0 ]; then
-            echo "echo --> ERROR: Failed to reactivating the license... trying to revoke and register it again:"
+            echo "echo --> 错误: 重新激活许可证失败... 正在尝试撤销并重新注册:"
             set -x
             ${appDataDirs[FOP2APPDIR]}/fop2_server --revoke   --name "${FOP2_LICENSE_NAME}" --code "${FOP2_LICENSE_CODE}" $FOP2_LICENSE_OPTS
             ${appDataDirs[FOP2APPDIR]}/fop2_server --register --name "${FOP2_LICENSE_NAME}" --code "${FOP2_LICENSE_CODE}" $FOP2_LICENSE_OPTS
@@ -1354,21 +1354,21 @@ cfgService_fop2 () {
           fi
           unset RETVAL
         fi
-        echo "--> INFO: FOP2 license code info:"
+        echo "--> 信息: FOP2 许可证代码信息:"
         ${appDataDirs[FOP2APPDIR]}/fop2_server --getinfo $FOP2_LICENSE_OPTS
-        echo "--> INFO: FOP2 license code status:"
+        echo "--> 信息: FOP2 许可证代码状态:"
         ${appDataDirs[FOP2APPDIR]}/fop2_server --test $FOP2_LICENSE_OPTS
     fi
   fi
 }
 
 cfgService_pma() {
-    echo "=> Enabling and Configuring phpMyAdmin"
-    # remove unused http alias
+    echo "=> 正在启用并配置 phpMyAdmin"
+    # 移除未使用的 http 别名
     sed "/^Alias \/phpMyAdmin \/usr\/share\/phpMyAdmin/d" -i "${PMA_CONF_APACHE}"
-    # reconfigure the http alias
+    # 重新配置 http 别名
     sed "s|^Alias /phpmyadmin /usr/share/phpMyAdmin|Alias ${PMA_ALIAS} /usr/share/phpMyAdmin|" -i "${PMA_CONF_APACHE}"
-    # allow connection from internal networks
+    # 允许来自内部网络的连接
     #sed "s|Require local|Require ip ${PMA_ALLOW_FROM}|" -i "${PMA_CONF_APACHE}"
     cat <<EOF >> "${PMA_CONF_APACHE}"
 <Directory /usr/share/phpMyAdmin/>
@@ -1376,12 +1376,12 @@ cfgService_pma() {
 $(for FROM in ${PMA_ALLOW_FROM}; do echo "    Require ip $FROM"; done)
 </Directory>
 EOF
-    # configure database access
+    # 配置数据库访问
     sed "s|'localhost';|'${MYSQL_SERVER}';|" -i "${PMA_CONFIG}"
 }
 
 cfgService_phonebook() {
-    echo "=> Enabling Remote XML PhoneBook support"
+    echo "=> 正在启用远程 XML 电话本支持"
     
     echo "Alias /pb /usr/local/share/phonebook
 
@@ -1410,34 +1410,34 @@ echo "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 }
 
 cfgService_letsencrypt() {
-  echo "=> Generating Let's Encrypt certificates for '$APP_FQDN'"
+  echo "=> 正在为 '$APP_FQDN' 生成 Let's Encrypt 证书"
   if   [ -z "$APP_FQDN" ]; then
-    echo "--> WARNING: skipping let's encrypt certificates request because APP_FQDN is not defined"
+    echo "--> 警告: 跳过 Let's Encrypt 证书请求，因为未定义 APP_FQDN"
   elif [ -z "$LETSENCRYPT_COUNTRY_CODE" ]; then
-    echo "--> WARNING: skipping let's encrypt certificates request because LETSENCRYPT_COUNTRY_CODE is not defined"
+    echo "--> 警告: 跳过 Let's Encrypt 证书请求，因为未定义 LETSENCRYPT_COUNTRY_CODE"
   elif [ -z "$LETSENCRYPT_COUNTRY_STATE" ]; then
-    echo "--> WARNING: skipping let's encrypt certificates request because LETSENCRYPT_COUNTRY_STATE is not defined"
+    echo "--> 警告: 跳过 Let's Encrypt 证书请求，因为未定义 LETSENCRYPT_COUNTRY_STATE"
   elif [ -z "$SMTP_MAIL_TO" ]; then
-    echo "--> WARNING: skipping let's encrypt certificates request because SMTP_MAIL_TO is not defined"
+    echo "--> 警告: 跳过 Let's Encrypt 证书请求，因为未定义 SMTP_MAIL_TO"
   else
-    # generate let's encrypt certificates
-    # NOTE: apache web server must be running to complete the certbot handshake
-    # FIXME: if the FQDN address is different than outgoing address making the request, the certification process will fail with:
-    #        Error 'Requested host 'APP_FQDN' does not resolve to 'EXTERNAL OUTGOING IP' (Resolved to 'APP_FQDN RESOLVING IP' instead)' when requesting ....
+    # 生成 Let's Encrypt 证书
+    # 注意: Apache Web 服务器必须运行才能完成 certbot 握手
+    # FIXME: 如果 FQDN 地址与发起请求的出站地址不同，认证过程将失败:
+    #        Error 'Requested host 'APP_FQDN' does not resolve to 'EXTERNAL OUTGOING IP'...
     CERTOK=1
     
-    # renew existing certificate
+    # 续期现有证书
     if [ -e "${fpbxDirs[CERTKEYLOC]}/$APP_FQDN.pem" ]; then
-      echo "--> Let's Encrypt certificates for '$APP_FQDN' already exists... Check and update all certificates"
+      echo "--> '$APP_FQDN' 的 Let's Encrypt 证书已存在... 检查并更新所有证书"
       httpd -k start
       fwconsole certificates --updateall
       [ $? -eq 0 ] && CERTOK=0
       [ $CERTOK -eq 0 ] && fwconsole certificates --default=$APP_FQDN
-      [ $CERTOK -eq 0 ] && echo "--> default FreePBX certificate configured to ${fpbxDirs[CERTKEYLOC]}/$APP_FQDN.pem"
+      [ $CERTOK -eq 0 ] && echo "--> 默认 FreePBX 证书已配置为 ${fpbxDirs[CERTKEYLOC]}/$APP_FQDN.pem"
       httpd -k stop
     fi
 
-    # request new certificate
+    # 申请新证书
     if [ $CERTOK -eq 1 ]; then
       httpd -k start
       set -x
@@ -1445,7 +1445,7 @@ cfgService_letsencrypt() {
       set +x
       [ $? -eq 0 ] && CERTOK=0
       [ $CERTOK -eq 0 ] && fwconsole certificates --default=$APP_FQDN
-      [ $CERTOK -eq 0 ] && echo "--> default FreePBX certificate configured to ${fpbxDirs[CERTKEYLOC]}/$APP_FQDN.pem"
+      [ $CERTOK -eq 0 ] && echo "--> 默认 FreePBX 证书已配置为 ${fpbxDirs[CERTKEYLOC]}/$APP_FQDN.pem"
       httpd -k stop
     fi
   fi
@@ -1453,29 +1453,29 @@ cfgService_letsencrypt() {
 
 cfgService_fop2_install() {
   echo
-  echo "=> !!! FOP2 IS NOT INITIALIZED :: NEW INSTALLATION DETECTED !!! Downloading and Installing FOP2..."
+  echo "=> !!! FOP2 尚未初始化 :: 检测到全新安装 !!! 正在下载和安装 FOP2..."
   echo
   fwconsole start
   if [ -z "$FOP2_VER" ]; then
-    # automatic installation of latest version
+    # 自动安装最新版本
     wget -O - http://download.fop2.com/install_fop2.sh | bash
    else
     curl -fSL --connect-timeout 30 http://download2.fop2.com/fop2-$FOP2_VER-centos-x86_64.tgz | tar xz -C /usr/src
     cd /usr/src/fop2 && make install && /usr/local/fop2/generate_override_contexts.pl -write
   fi
-  
+
   pkill fop2_server
   fwconsole stop
 }
 
 cfgService_fop2_upgrade() {
   #:${FOP2_VER:=$1}
-  #[ -z "${FOP2_VER}" ] && echo "--> ERROR: No FOP2 upgrade version defined... define FOP2_VER var or give it as argument... exiting" && return
-  
-  # container workarounds
+  #[ -z "${FOP2_VER}" ] && echo "--> 错误: 未定义 FOP2 升级版本... 请定义 FOP2_VER 变量或作为参数传入... 正在退出" && return
+
+  # 容器临时方案
   export TERM=linux
   echo "-i ${FOP2_LICENSE_IFACE}" > /etc/sysconfig/fop2
-  
+
   curl -fSL --connect-timeout 30 http://download2.fop2.com/fop2-$FOP2_VER-centos-x86_64.tgz | tar xz -C /usr/src
   cd /usr/src/fop2 && make install
 }
@@ -1490,7 +1490,7 @@ cfgBashEnv() {
     export PS1="(${APP})\e[1;34m[\e[1;33m\u@\e[1;32m\h\e[2m$DOMAIN\e[0m: \e[1;37m\w\[\e[1;34m]\e[1;36m\\$ \e[0m"
   fi
 
-  # aliases
+  # 别名
   alias d="ls -lAsh --color"
   alias cp="cp -ip"
   alias rm="rm -i"
@@ -1511,22 +1511,22 @@ cfgBashEnv() {
 }
 
 runHooks() {
-  # configure supervisord
-  echo "--> fixing supervisord config file..."
+  # 配置 supervisord
+  echo "--> 正在修正 supervisord 配置文件..."
   if   [ "$OS_RELEASE" = "debian" ]; then
-    echo "---> Debian Linux detected"
+    echo "---> 检测到 Debian Linux"
     sed 's|^files = .*|files = /etc/supervisor/conf.d/*.ini|' -i /etc/supervisor/supervisord.conf
     mkdir -p /var/log/supervisor /var/log/proftpd /var/log/dbconfig-common /var/log/apt/ /var/log/apache2/ /var/run/nagios/
     touch /var/log/wtmp /var/log/lastlog
     [ ! -e /sbin/nologin ] && ln -s /usr/sbin/nologin /sbin/nologin
   else
-    echo "---> RHEL Linux based distro detected"
+    echo "---> 检测到基于 RHEL 的 Linux 发行版"
     mkdir -p /run/supervisor
     sed 's/\[supervisord\]/\[supervisord\]\nuser=root/' -i /etc/supervisord.conf
     sed 's|^file=.*|file=/run/supervisor/supervisor.sock|' -i /etc/supervisord.conf
     sed 's|^pidfile=.*|pidfile=/run/supervisor/supervisord.pid|' -i /etc/supervisord.conf
     sed 's|^nodaemon=.*|nodaemon=true|' -i /etc/supervisord.conf
-    # configure webserver security
+    # 配置 Web 服务器安全
     #echo unix_http_server username=admin | iniParser /etc/supervisord.conf
     #echo unix_http_server password=izpbx | iniParser /etc/supervisord.conf
     
@@ -1537,35 +1537,35 @@ runHooks() {
     
   fi
 
-  # check and create missing container directory
-  if [ ! -z "${APP_DATA}" ]; then  
-    echo "=> Persistent storage path detected... relocating and reconfiguring system data and configuration files using basedir: ${APP_DATA}"
+  # 检查并创建缺失的容器目录
+  if [ ! -z "${APP_DATA}" ]; then
+    echo "=> 检测到持久化存储路径... 正在使用基础目录重定位并重新配置系统数据和配置文件: ${APP_DATA}"
     for dir in ${appDataDirs[@]}
       do
         dir="${APP_DATA}${dir}"
         if [ ! -e "${dir}" ];then
-          echo "--> creating missing dir: '$dir'"
+          echo "--> 正在创建缺失的目录: '$dir'"
           mkdir -p "${dir}"
         fi
       done
 
-    # link to custom data directory if required
+    # 如需则链接到自定义数据目录
     for dir in ${appDataDirs[@]}; do
       symlinkDir "${dir}" "${APP_DATA}${dir}"
     done
-    
+
     for file in ${appFilesConf[@]}; do
       # echo FILE=$file
       symlinkFile "${file}" "${APP_DATA}${file}"
     done
    else
-    echo "=> WARNING: No Persistent storage path detected... the configurations will be lost on container restart"
+    echo "=> 警告: 未检测到持久化存储路径... 容器重启后配置将丢失"
   fi
 
-  # check files and directory permissions
-  echo "--> verifying files permissions"
-  
-  # TFTPDIR permission and path fix
+  # 检查文件和目录权限
+  echo "--> 正在验证文件权限"
+
+  # TFTPDIR 权限和路径修正
   fixOwner "${APP_USR}" "${APP_GRP}" "${appDataDirs[TFTPDIR]}"
   [ ! -e "/tftpboot" ] && ln -s "${appDataDirs[TFTPDIR]}" "/tftpboot"
 
@@ -1582,10 +1582,10 @@ runHooks() {
 #     fixOwner "${APP_USR}" "${APP_GRP}" "${file}"
 #   done
 
-  # customize bash env
+  # 自定义 bash 环境
   cfgBashEnv > /etc/profile.d/izpbx.sh
-  
-  # enable/disable and configure services
+
+  # 启用/禁用和配置服务
   #chkService SYSLOG_ENABLED
   chkService POSTFIX_ENABLED
   chkService CRON_ENABLED
@@ -1597,17 +1597,17 @@ runHooks() {
   chkService FOP2_ENABLED
   chkService NTP_ENABLED
 
-  # dnsmasq management
+  # dnsmasq 管理
   [[ "$DHCP_ENABLED" = "true" || "$TFTP_ENABLED" = "true" ]] && DNSMASQ_ENABLED=true
   chkService DNSMASQ_ENABLED
-   
-  # phpMyAdmin configuration
+
+  # phpMyAdmin 配置
   [ "${PMA_ENABLED}" = "true" ] && cfgService_pma || mv "${PMA_CONF_APACHE}" "${PMA_CONF_APACHE}-disabled"
 
-  # remote XML phonebook support
+  # 远程 XML 电话本支持
   [ ${PHONEBOOK_ENABLED} = "true" ] && cfgService_phonebook
-  
-  # Lets Encrypt certificate generation
+
+  # Let's Encrypt 证书生成
   [[ "${HTTPD_HTTPS_ENABLED}" = "true" && "${LETSENCRYPT_ENABLED}" = "true" ]] && cfgService_letsencrypt
 }
 
