@@ -171,6 +171,7 @@ ENV APP_INSTALL_DEPS=' \
     nc \
     dnsmasq \
     glibc-langpack-en \
+    glibc-langpack-zh \
     perl-DBI \
     perl-DBD-mysql \
     cyrus-sasl-plain \
@@ -188,6 +189,7 @@ ENV APP_INSTALL_DEPS=' \
     patch \
     iproute \
     bc \
+    gettext \
   '
   
   # 注意：postfix > 3.4.x 用于将日志输出到 docker stdout

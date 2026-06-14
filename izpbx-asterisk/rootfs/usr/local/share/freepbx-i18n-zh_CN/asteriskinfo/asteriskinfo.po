@@ -1,0 +1,227 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: FreePBX 2.5 Chinese Translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-29 05:11+0000\n"
+"PO-Revision-Date: 2015-02-05 21:01+0200\n"
+"Last-Translator: james <zhulizhong@gmail.com>\n"
+"Language-Team: Simplified Chinese <http://git.freepbx.org/projects/freepbx/"
+"asteriskinfo/zh_CN/>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 1.10-dev\n"
+"X-Poedit-Language: Chinese\n"
+"X-Poedit-Country: CHINA\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: Asteriskinfo.class.php:52
+msgid "All"
+msgstr ""
+
+#: asteriskinfo.i18n.php:4 asteriskinfo.i18n.php:10 page.asteriskinfo.php:13
+msgid "Asterisk Info"
+msgstr "Asterisk 信息"
+
+#: Modules/Conferences.php:11
+msgid ""
+"Can't connect to Asterisk. Is Asterisk running and started by the correct "
+"user?"
+msgstr ""
+
+#: Modules/Channels.php:40
+msgid "Channel Count"
+msgstr ""
+
+#: page.asteriskinfo.php:16
+msgid "Current Asterisk Version:"
+msgstr ""
+
+#: Modules/Dahdi.php:12
+msgid "Dahdi Channels"
+msgstr ""
+
+#: Modules/Dahdi.php:13
+msgid "Dahdi PRI Spans"
+msgstr ""
+
+#: asteriskinfo.i18n.php:8
+msgid "Provides a snapshot of the current Asterisk configuration"
+msgstr "提供一个当前Asterisk配置简介"
+
+#: asteriskinfo.i18n.php:6
+msgid "Reports"
+msgstr "报表"
+
+#: Modules/Channels.php:40
+msgid "Resource"
+msgstr ""
+
+#: Modules/Channels.php:40
+msgid "Status"
+msgstr "状态"
+
+#: Modules/Channels.php:40
+msgid "Tech"
+msgstr ""
+
+#: Modules/Channels.php:19
+msgid "The Asterisk REST Interface Module is not loaded in asterisk"
+msgstr ""
+
+#: Modules/Channels.php:24
+msgid "The Asterisk REST Interface is Currently Disabled."
+msgstr ""
+
+#: Modules/Channels.php:32
+msgid ""
+"The Asterisk REST Interface is not able to connect please check "
+"configuration in advanced settings."
+msgstr ""
+
+#: page.asteriskinfo.php:15
+msgid "This page supplies various information about Asterisk"
+msgstr ""
+
+#~ msgid "Active Channel(s)"
+#~ msgstr "活动的频道"
+
+#~ msgid "Active IAX2 Channel(s): "
+#~ msgstr "活动的IAX2频道："
+
+#~ msgid "Active SIP Channel(s): "
+#~ msgstr "活动的SIP频道："
+
+#~ msgid "Channels"
+#~ msgstr "频道"
+
+#~ msgid "Conference Bridge Info"
+#~ msgstr "会议桥信息"
+
+#~ msgid "Conferences"
+#~ msgstr "会议"
+
+#~ msgid "Full Report"
+#~ msgstr "完整的报告"
+
+#~ msgid "Google Talk Channels"
+#~ msgstr "Google Talk 通道"
+
+#~ msgid "IAX Info"
+#~ msgstr "IAX信息"
+
+#~ msgid "IAX2 Channel(s)"
+#~ msgstr "IXA2频道"
+
+#~ msgid "IAX2 Peers"
+#~ msgstr "IAX2客户"
+
+#~ msgid "IAX2 Peers: "
+#~ msgstr "IAX2客户："
+
+#~ msgid "IAX2 Registry"
+#~ msgstr "IAX2注册项目"
+
+#~ msgid "IAX2 Registry: "
+#~ msgstr "IAX2注册项："
+
+#~ msgid "Jabber Connections"
+#~ msgstr "Jabber连接"
+
+#~ msgid "MeetMe Conference Info"
+#~ msgstr "MeetMe 会议信息"
+
+#~ msgid "Offline-Unmonitored: "
+#~ msgstr "离线-未检测的 "
+
+#~ msgid "Offline: "
+#~ msgstr "离线："
+
+#~ msgid "Online-Unmonitored: "
+#~ msgstr "在线-未检测的 "
+
+#~ msgid "Online: "
+#~ msgstr "在线："
+
+#~ msgid "Peers"
+#~ msgstr "客户"
+
+#~ msgid "Queues"
+#~ msgstr "队列"
+
+#~ msgid "Queues Info"
+#~ msgstr "队列信息"
+
+#~ msgid "Registries"
+#~ msgstr "注册项"
+
+#~ msgid "Sip Peers: "
+#~ msgstr "SIP客户："
+
+#~ msgid "Sip Registry: "
+#~ msgstr "SIP注册项："
+
+#~ msgid "Subscribe/Notify"
+#~ msgstr "订阅/通知"
+
+#~ msgid "Subscriptions"
+#~ msgstr "订阅"
+
+#~ msgid "Summary"
+#~ msgstr "摘要"
+
+#~ msgid ""
+#~ "The module was unable to connect to the Asterisk manager.<br>Make sure "
+#~ "Asterisk is running and your manager.conf settings are proper.<br><br>"
+#~ msgstr ""
+#~ "本模块无法连接到Asterisk管理器。<br />请确认Asterisk正在运行并且你的"
+#~ "manager.conf设定是正确的。<br><br>"
+
+#~ msgid "Unmonitored: "
+#~ msgstr "未监视的："
+
+#~ msgid "Uptime"
+#~ msgstr "运行时间"
+
+#~ msgid "Uptime: "
+#~ msgstr "运行时间："
+
+#~ msgid "Voicemail Users"
+#~ msgstr "语音邮件用户"
+
+#~ msgid "DAHDi driver info"
+#~ msgstr "DAHDi驱动信息"
+
+#~ msgid "Zaptel driver info"
+#~ msgstr "Zaptel驱动信息"
+
+#~ msgid "ASTERISK MANAGER ERROR"
+#~ msgstr "Asterisk管理器错误"
+
+#~ msgid "Asterisk (Ver. "
+#~ msgstr "Asterisk （版本"
+
+#~ msgid "Conference Info"
+#~ msgstr "会议信息"
+
+#~ msgid "Refresh"
+#~ msgstr "刷新"
+
+#~ msgid "Sip Channel(s)"
+#~ msgstr "SIP通道"
+
+#~ msgid "Sip Info"
+#~ msgstr "SIP信息"
+
+#~ msgid "Sip Peers"
+#~ msgstr "SIP客户"
+
+#~ msgid "Sip Registry"
+#~ msgstr "SIP注册项"

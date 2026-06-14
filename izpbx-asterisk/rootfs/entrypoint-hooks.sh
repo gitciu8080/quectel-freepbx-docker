@@ -1167,7 +1167,12 @@ cfgService_freepbx_install() {
 
     # 重新加载 freePBX
     freepbxReload
-    
+
+    # 部署中文翻译
+    if [ -f /usr/local/bin/deploy-zh_CN-translations.sh ]; then
+      bash /usr/local/bin/deploy-zh_CN-translations.sh
+    fi
+
     # 标记此次部署为已初始化
     touch "${APP_DATA}/.initialized"
     # 保存当前 FreePBX 版本号
