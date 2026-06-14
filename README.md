@@ -43,16 +43,17 @@
 
 # 截图
 #### izPBX 仪表盘 (FreePBX):
-![izpbx-dashboard](https://raw.githubusercontent.com/ugoviti/izpbx/main/screenshots/izpbx-dashboard.png)
+
+![izpbx-dashboard](https://github.com/gitciu8080/quectel-freepbx-docker/blob/main/screenshots/izpbx-cli.png?raw=true)
 
 #### izPBX 操作面板 (FOP2):
-![izpbx-izpbx-operator-panel](https://raw.githubusercontent.com/ugoviti/izpbx/main/screenshots/izpbx-operator-panel.png)
+![izpbx-izpbx-operator-panel](https://github.com/gitciu8080/quectel-freepbx-docker/blob/main/screenshots/izpbx-dashboard.png?raw=true)
 
 #### izPBX 监控仪表盘 (Zabbix):
-![izpbx-zabbix-dashboard](https://raw.githubusercontent.com/ugoviti/izpbx/main/screenshots/izpbx-zabbix-dashboard.png)
+![izpbx-zabbix-dashboard](https://github.com/gitciu8080/quectel-freepbx-docker/blob/main/screenshots/izpbx-operator-panel.png?raw=true)
 
 #### izPBX CLI (Asterisk):
-![izpbx-console](https://raw.githubusercontent.com/ugoviti/izpbx/main/screenshots/izpbx-cli.png)
+![izpbx-console](https://github.com/gitciu8080/quectel-freepbx-docker/blob/main/screenshots/izpbx-zabbix-dashboard.png?raw=true)
 
 # 部署 izPBX
 建议使用 **docker-compose** 方式：
