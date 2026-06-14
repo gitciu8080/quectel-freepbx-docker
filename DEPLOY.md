@@ -292,6 +292,32 @@ USB 3.0 Hub
 服务器 USB 接口
 ```
 
+插入后验证设备识别：
+
+```bash
+# 查看 USB 设备
+lsusb | grep -i quectel
+
+# 查看串口设备（通常出现 ttyUSB0-3）
+ls /dev/ttyUSB*
+```
+
+### Docker USB 设备映射
+
+`docker-compose.yml` 中已配置显式设备映射：
+
+```yaml
+services:
+  freepbx:
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+      - /dev/ttyUSB2:/dev/ttyUSB2
+      - /dev/ttyUSB3:/dev/ttyUSB3
+```
+
+> **注意**：如果设备名称不同（如某些系统显示为 `/dev/ttyACM*`），需要相应调整 `devices` 配置和 `quectel.conf` 中的路径。
+
 ### 驱动配置
 
 4G 模块通道配置位于容器内 `/etc/asterisk/quectel.conf`：

@@ -50,6 +50,14 @@ services:
       - ./data:/data
     ## fail2ban 需要特权模式来管理 iptables
     privileged: true
+    ## 4G 模块 USB 设备映射（Quectel EC25 通常占用 ttyUSB0-3）
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+      - /dev/ttyUSB2:/dev/ttyUSB2
+      - /dev/ttyUSB3:/dev/ttyUSB3
+      # 如果使用 UAC 模式，还需要音频设备
+      # - /dev/snd:/dev/snd
     ulimits:
       nofile:
         soft: 8192
