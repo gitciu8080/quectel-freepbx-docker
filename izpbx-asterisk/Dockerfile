@@ -610,13 +610,13 @@ RUN set -xe && \
   : "---------- 开始安装 InitZero Asterisk Zabbix 代理 ----------" && \
   mkdir -p /etc/zabbix/zabbix_agentd.d && \
   cd /etc/zabbix/zabbix_agentd.d && \
-  curl -fSL --connect-timeout 30 https://github.com/ugoviti/zabbix-templates/archive/${ZABBIX_TEMPLATE_VER}.tar.gz | tar xz --strip 3 zabbix-templates-${ZABBIX_TEMPLATE_VER}/asterisk/zabbix_agentd.d && \
+  (curl -fSL --connect-timeout 30 https://github.com/ugoviti/zabbix-templates/archive/${ZABBIX_TEMPLATE_VER}.tar.gz | tar xz --strip 3 zabbix-templates-${ZABBIX_TEMPLATE_VER}/asterisk/zabbix_agentd.d || true) && \
   : "---------- 安装完成 ----------" && \
   ## 启用 FreePBX 16 所需的 PHP 7.4 模块
   if [[ "${FREEPBX_VER}" = "16" ]]; then \
   : "---------- 开始安装 PHP IonCube Loader ----------" && \
-  curl -fSL --connect-timeout 30 https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz | tar xz --strip 1 -C /usr/lib64/php/modules/ ioncube/ioncube_loader_lin_7.4.so && \
-  echo "zend_extension=ioncube_loader_lin_7.4.so" >> /etc/php.ini && \
+  (curl -fSL --connect-timeout 30 https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz | tar xz --strip 1 -C /usr/lib64/php/modules/ ioncube/ioncube_loader_lin_7.4.so || true) && \
+  echo "zend_extension=ioncube_loader_lin_7.4.so" >> /etc/php.ini 2>/dev/null; \
   : "---------- 安装完成 ----------" \
   ;fi
 
