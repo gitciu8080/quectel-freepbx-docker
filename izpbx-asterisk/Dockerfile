@@ -208,11 +208,6 @@ RUN set -xe && \
   ## ffmpeg 命令的 rpmfusion 仓库
   rpm -Uhv https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
   rpm -Uhv https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm && \
-  ## lame 命令的仓库
-  rpm -Uhv http://repo.okay.com.mx/centos/8/x86_64/release/okay-release-1-5.el8.noarch.rpm && \
-  ## 修复错误选项
-  sed '/^failovermethod/d' -i /etc/yum.repos.d/okay.repo && \
-  \
   ## 安装 dnf 插件
   dnf -y install dnf-plugins-core && \
   ## 启用额外仓库
@@ -221,7 +216,6 @@ RUN set -xe && \
     remi \
     rpmfusion-free-updates \
     rpmfusion-nonfree-updates \
-    okay \
   && \
   ## 启用 FreePBX 16 所需的 PHP 7.4 模块
   if [[ "${FREEPBX_VER}" = "16" ]]; then \
