@@ -182,7 +182,6 @@ ENV APP_INSTALL_DEPS=' \
     postfix \
     phpMyAdmin \
     zabbix-agent \
-    zabbix-sender \
     ffmpeg \
     lame-libs \
     libuv \
@@ -204,7 +203,7 @@ RUN set -xe && \
   ## phpMyAdmin 的 remi 仓库
   rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-8.rpm && \
   ## zabbix agent 的 zabbix 仓库
-  rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rocky/8/x86_64/zabbix-release-6.0-4.el8.noarch.rpm && \
+  rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/8/x86_64/zabbix-release-6.0-1.el8.noarch.rpm && \
   ## ffmpeg 命令的 rpmfusion 仓库
   rpm -Uhv https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
   rpm -Uhv https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm && \
