@@ -214,7 +214,9 @@ RUN set -xe && \
   dnf config-manager --set-enabled \
     powertools \
     remi \
+    rpmfusion-free \
     rpmfusion-free-updates \
+    rpmfusion-nonfree \
     rpmfusion-nonfree-updates \
   && \
   ## 启用 FreePBX 16 所需的 PHP 7.4 模块
