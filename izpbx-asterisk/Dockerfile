@@ -608,6 +608,7 @@ RUN set -xe && \
   chmod 755 /usr/local/bin/izsynth && \
   : "---------- 安装完成 ----------" && \
   : "---------- 开始安装 InitZero Asterisk Zabbix 代理 ----------" && \
+  mkdir -p /etc/zabbix/zabbix_agentd.d && \
   cd /etc/zabbix/zabbix_agentd.d && \
   curl -fSL --connect-timeout 30 https://github.com/ugoviti/zabbix-templates/archive/${ZABBIX_TEMPLATE_VER}.tar.gz | tar xz --strip 3 zabbix-templates-${ZABBIX_TEMPLATE_VER}/asterisk/zabbix_agentd.d && \
   : "---------- 安装完成 ----------" && \
