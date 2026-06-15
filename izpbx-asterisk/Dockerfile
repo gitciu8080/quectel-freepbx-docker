@@ -184,7 +184,6 @@ ENV APP_INSTALL_DEPS=' \
     zabbix-agent \
     zabbix-sender \
     ffmpeg \
-    lame \
     libuv \
     patch \
     iproute \
@@ -214,9 +213,7 @@ RUN set -xe && \
   dnf config-manager --set-enabled \
     powertools \
     remi \
-    rpmfusion-free \
     rpmfusion-free-updates \
-    rpmfusion-nonfree \
     rpmfusion-nonfree-updates \
   && \
   ## 启用 FreePBX 16 所需的 PHP 7.4 模块
@@ -233,6 +230,9 @@ RUN set -xe && \
   $APP_INSTALL_DEPS \
   && \
   dnf mark install $APP_INSTALL_DEPS && \
+  \
+  ## lame 在 rpmfusion-free 基础仓库（非 updates）
+  dnf install -y --enablerepo=rpmfusion-free lame && \
   \
   if [[ ${APP_DEBUG} -eq 0 ]]; then \
   : "---------- 清理临时文件 ----------" && \
