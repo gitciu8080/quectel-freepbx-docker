@@ -200,6 +200,9 @@ RUN set -xe && \
   ## 安装 epel 仓库
   dnf -y install epel-release && \
   \
+  ## 持久启用 PowerTools（编译依赖需要，后续 RUN 层共享）
+  dnf config-manager --set-enabled powertools && \
+  \
   ## phpMyAdmin 的 remi 仓库
   rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-8.rpm && \
   ## zabbix agent 的 zabbix 仓库
