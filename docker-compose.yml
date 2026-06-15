@@ -63,31 +63,31 @@ services:
         soft: 8192
         hard: 32768
     ## 注意：要避免 SIP-RTP NAT 问题请使用：'network_mode: host'
-    #    network_mode: host
-    networks:
-      - freepbx
-      - databases
-    ports:
+    network_mode: host
+    #networks:
+    #  - freepbx
+    #  - databases
+    #ports:
       #- ${APP_PORT_HTTP}:${APP_PORT_HTTP}
       #- ${APP_PORT_HTTPS}:${APP_PORT_HTTPS}
-      - ${APP_PORT_IAX}:${APP_PORT_IAX}
-      - ${APP_PORT_IAX}:${APP_PORT_IAX}/udp
-      - ${APP_PORT_PJSIP}:${APP_PORT_PJSIP}
-      - ${APP_PORT_PJSIP}:${APP_PORT_PJSIP}/udp
-      - ${APP_PORT_SIP}:${APP_PORT_SIP}/udp
-      - ${APP_PORT_SIP}:${APP_PORT_SIP}
-      - ${APP_PORT_WEBRTC}:${APP_PORT_WEBRTC}
-      - ${APP_PORT_UCP_HTTP}:${APP_PORT_UCP_HTTP}
-      - ${APP_PORT_UCP_HTTPS}:${APP_PORT_UCP_HTTPS}
-      - ${APP_PORT_AMI}:${APP_PORT_AMI}
-      - ${APP_PORT_RTP_START}-${APP_PORT_RTP_END}:${APP_PORT_RTP_START}-${APP_PORT_RTP_END}
-      - ${APP_PORT_RTP_START}-${APP_PORT_RTP_END}:${APP_PORT_RTP_START}-${APP_PORT_RTP_END}/udp
-      #- ${APP_PORT_DHCP}:${APP_PORT_DHCP}/udp
-      #- ${APP_PORT_TFTP}:${APP_PORT_TFTP}
-      #- ${APP_PORT_TFTP}:${APP_PORT_TFTP}/udp
-      #- ${APP_PORT_NTP}:${APP_PORT_NTP}/udp
-      #- ${APP_PORT_FOP2}:${APP_PORT_FOP2}
-      #- ${APP_PORT_ZABBIX}:${APP_PORT_ZABBIX}
-    labels:
-      - "traefik.http.routers.freepbx.rule=Host(`freepbx.local`)"
-      - "traefik.http.services.freepbx.loadbalancer.server.port=80"
+    #  - ${APP_PORT_IAX}:${APP_PORT_IAX}
+    #  - ${APP_PORT_IAX}:${APP_PORT_IAX}/udp
+    #  - ${APP_PORT_PJSIP}:${APP_PORT_PJSIP}
+    #  - ${APP_PORT_PJSIP}:${APP_PORT_PJSIP}/udp
+    #  - ${APP_PORT_SIP}:${APP_PORT_SIP}/udp
+    #  - ${APP_PORT_SIP}:${APP_PORT_SIP}
+    #  - ${APP_PORT_WEBRTC}:${APP_PORT_WEBRTC}
+    #  - ${APP_PORT_UCP_HTTP}:${APP_PORT_UCP_HTTP}
+    #  - ${APP_PORT_UCP_HTTPS}:${APP_PORT_UCP_HTTPS}
+    #  - ${APP_PORT_AMI}:${APP_PORT_AMI}
+    #  - ${APP_PORT_RTP_START}-${APP_PORT_RTP_END}:${APP_PORT_RTP_START}-${APP_PORT_RTP_END}
+    #  - ${APP_PORT_RTP_START}-${APP_PORT_RTP_END}:${APP_PORT_RTP_START}-${APP_PORT_RTP_END}/udp
+    #  #- ${APP_PORT_DHCP}:${APP_PORT_DHCP}/udp
+    #  #- ${APP_PORT_TFTP}:${APP_PORT_TFTP}
+    #  #- ${APP_PORT_TFTP}:${APP_PORT_TFTP}/udp
+    #  #- ${APP_PORT_NTP}:${APP_PORT_NTP}/udp
+    #  #- ${APP_PORT_FOP2}:${APP_PORT_FOP2}
+    #  #- ${APP_PORT_ZABBIX}:${APP_PORT_ZABBIX}
+    #labels:
+    #  - "traefik.http.routers.freepbx.rule=Host(`freepbx.local`)"
+    #  - "traefik.http.services.freepbx.loadbalancer.server.port=80"
