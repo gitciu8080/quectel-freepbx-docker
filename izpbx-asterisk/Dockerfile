@@ -184,6 +184,7 @@ ENV APP_INSTALL_DEPS=' \
     zabbix-agent \
     zabbix-sender \
     ffmpeg \
+    lame-libs \
     libuv \
     patch \
     iproute \
@@ -203,19 +204,18 @@ RUN set -xe && \
   ## phpMyAdmin 的 remi 仓库
   rpm -Uvh https://rpms.remirepo.net/enterprise/remi-release-8.rpm && \
   ## zabbix agent 的 zabbix 仓库
-  rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rhel/8/x86_64/zabbix-release-6.0-1.el8.noarch.rpm && \
+  rpm -Uvh https://repo.zabbix.com/zabbix/6.0/rocky/8/x86_64/zabbix-release-6.0-4.el8.noarch.rpm && \
   ## ffmpeg 命令的 rpmfusion 仓库
   rpm -Uhv https://download1.rpmfusion.org/free/el/rpmfusion-free-release-8.noarch.rpm && \
   rpm -Uhv https://download1.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-8.noarch.rpm && \
-  ## 安装 dnf 插件
-  dnf -y install dnf-plugins-core && \
-  ## 启用额外仓库
-  dnf config-manager --set-enabled \
-    powertools \
-    remi \
-    rpmfusion-free-updates \
-    rpmfusion-nonfree-updates \
-  && \
+  \
+  ## 构建 dnf 通用选项（按需启用仓库，避免污染全局配置）
+  export DNF_OPTS=" --enablerepo=epel" && \
+  export DNF_OPTS+=" --enablerepo=remi" && \
+  export DNF_OPTS+=" --enablerepo=powertools" && \
+  export DNF_OPTS+=" --enablerepo=rpmfusion-free-updates" && \
+  export DNF_OPTS+=" --enablerepo=rpmfusion-nonfree-updates" && \
+  \
   ## 启用 FreePBX 16 所需的 PHP 7.4 模块
   if [[ "${FREEPBX_VER}" = "16" ]]; then \
   : "---------- 启用 PHP 7.4 ----------" && \
@@ -224,15 +224,12 @@ RUN set -xe && \
   ;fi && \
   \
   ## 升级系统
-  dnf upgrade -y && \
+  dnf upgrade -y ${DNF_OPTS} && \
   ## 安装必需软件包
-  dnf install -y \
+  dnf install -y ${DNF_OPTS} \
   $APP_INSTALL_DEPS \
   && \
   dnf mark install $APP_INSTALL_DEPS && \
-  \
-  ## lame 在 rpmfusion-free 基础仓库（非 updates）
-  dnf install -y --enablerepo=rpmfusion-free lame && \
   \
   if [[ ${APP_DEBUG} -eq 0 ]]; then \
   : "---------- 清理临时文件 ----------" && \
