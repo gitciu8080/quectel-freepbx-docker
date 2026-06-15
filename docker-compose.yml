@@ -38,6 +38,8 @@ services:
 
   # https://hub.docker.com/r/izdock/izpbx-asterisk/tags?page=1&ordering=last_updated
   freepbx:
+    build:
+      context: ./izpbx-asterisk
     image: wiseowls/freepbx-quectel
     container_name: freepbx
     hostname: ${APP_FQDN}
