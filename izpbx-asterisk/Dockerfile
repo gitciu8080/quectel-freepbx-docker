@@ -629,6 +629,7 @@ RUN set -xe && \
     /var/log/asterisk \
     /var/run/asterisk && \
     chmod 1777 /var/lock && \
+    mkdir -p /etc/udev/rules.d && \
     echo "KERNEL==\"ttyUSB[0-9]*\", OWNER=\"asterisk\"" > /etc/udev/rules.d/60-extra-acl.rules
 
 ### 修复与临时方案
